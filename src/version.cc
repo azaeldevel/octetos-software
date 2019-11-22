@@ -15,8 +15,8 @@ int CmdVersion::versioncmd(int argc, char *argv[])
     {
         octetos::core::Artifact packinfo = octetos::software::getPackageInfo();
         std::string str = "v";
-		str += packinfo.version.toString() + " " + packinfo.name;
-		str += "\n" + packinfo.licence.getBrief() + "\n" + packinfo.brief + "\tContac:" + packinfo.licence.contact + "\n";        
+		str += packinfo.version.toString() + " " + packinfo.name + "\n" ;
+		str += packinfo.licence.getBrief() + "\n" + packinfo.brief + "\tContac:" + packinfo.licence.contact + "\n";        
         std::cout << str ;        
         return EXIT_SUCCESS;
     }
@@ -27,6 +27,7 @@ int CmdVersion::help(int argc, char *argv[])
 {
 	std::cout << "Use :\n";
 	std::cout << "\tversion vertext [--minimal=minver] [--maximal=verver] [--target='reference text']\n";
+	std::cout << "\tversion vertext --get-numbers-only\n";
     return EXIT_SUCCESS;
 }
 	
@@ -49,8 +50,7 @@ int CmdVersion::index(int argc, char *argv[])
             //std::cout << "File:" << packcreateOptinVal << "\n";
             
         }
-    }
-    
+    }    
     return EXIT_SUCCESS;
 }
 
@@ -63,7 +63,7 @@ int CmdVersion::pack(int argc, char *argv[])
     for(int i = 0; i< argc; i++)
     {
         strOption = argv[i];
-        std::cout << "O: " << strOption << "\n";
+        //std::cout << "O: " << strOption << "\n";
         std::string packcreatePrefix("--create=");
         int createPrefixIndex = strOption.compare(0, packcreatePrefix.size(), packcreatePrefix);
         if(!createPrefixIndex)
@@ -101,7 +101,12 @@ int CmdVersion::base(int argc, char *argv[])
         for(i = 2; i< argc; i++)
         {
             strOption = argv[i];
-            
+
+			if(strOption.compare("--get-numbers-only") == 0)
+			{
+				std::cout <<  version.toString(octetos::core::Version::Format::ONLY_NUMBERS) << "\n";
+				return EXIT_SUCCESS;
+			}
             
             if(strOption.compare("--major") == 0 or  strOption.compare("-M")==0)
             {
