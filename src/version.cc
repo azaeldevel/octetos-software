@@ -23,30 +23,34 @@ int CmdVersion::versioncmd(int argc, char *argv[])
 	
 	return EXIT_FAILURE;
 }
+
 int CmdVersion::help(int argc, char *argv[])
 {
+	//5.3.2 --get-numbers-only --minimal=3.2 --target='test program'
 	std::cout << "Use :\n";
 	std::cout << "\tversion vertext [--minimal=minver] [--maximal=verver] [--target='reference text']\n";
 	std::cout << "\tversion vertext --get-numbers-only\n";
+	std::cout << "\tversion vertext [--major] [--minor] [--path] \n";
+	std::cout << "\tversion index [--add] [--remove] pakagename vertext \n";
     return EXIT_SUCCESS;
 }
 	
 int CmdVersion::index(int argc, char *argv[])
 {
-    bool packcreateOption = false;
-    std::string packcreateOptinVal;
+    bool packaddOption = false;
+    std::string packaddOptinVal;
     //std::cout << "p: " << argv << "\n";
     //std::cout << "str: " << argv[0] << "\n";
     for(int i = 0; i< argc; i++)
     {
         strOption = argv[i];
-        std::cout << "O: " << strOption << "\n";
-        std::string packcreatePrefix("--create=");
-        int createPrefixIndex = strOption.compare(0, packcreatePrefix.size(), packcreatePrefix);
-        if(!createPrefixIndex)
+        //std::cout << "O: " << strOption << "\n";
+        std::string packaddPrefix("--add");
+        int addPrefixIndex = strOption.compare(0, packaddPrefix.size(), packaddPrefix);
+        if(!addPrefixIndex)
         {
-            packcreateOption = true;
-            packcreateOptinVal = strOption.substr(packcreatePrefix.size());
+            packaddOption = true;
+            packaddOptinVal = strOption.substr(packaddPrefix.size());
             //std::cout << "File:" << packcreateOptinVal << "\n";
             
         }
@@ -330,8 +334,7 @@ int CmdVersion::base(int argc, char *argv[])
 
 
 int main(int argc, char *argv[])
-{
-	
+{	
     int i = 1;    
     std::string strOption = argv[i]; 
 	octetos::software::CmdVersion cmd;	

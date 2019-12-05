@@ -88,7 +88,7 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-bin_PROGRAMS = version$(EXEEXT)
+bin_PROGRAMS = version$(EXEEXT) testing-v0$(EXEEXT)
 subdir = src
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/configure.ac
@@ -101,14 +101,23 @@ CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
 am__installdirs = "$(DESTDIR)$(bindir)"
 PROGRAMS = $(bin_PROGRAMS)
-am_version_OBJECTS = version-version.$(OBJEXT) \
-	version-software.$(OBJEXT)
-version_OBJECTS = $(am_version_OBJECTS)
-version_DEPENDENCIES = /usr/local/lib/liboctetos-core-cc.so
+am_testing_v0_OBJECTS = testing_v0-testing-v0.$(OBJEXT) \
+	testing_v0-db.$(OBJEXT)
+testing_v0_OBJECTS = $(am_testing_v0_OBJECTS)
+testing_v0_DEPENDENCIES = /usr/local/lib/liboctetos-core-cc.so \
+	/usr/lib/libsqlite.so
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
 am__v_lt_0 = --silent
 am__v_lt_1 = 
+testing_v0_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) \
+	$(LIBTOOLFLAGS) --mode=link $(CXXLD) $(AM_CXXFLAGS) \
+	$(CXXFLAGS) $(testing_v0_LDFLAGS) $(LDFLAGS) -o $@
+am_version_OBJECTS = version-version.$(OBJEXT) \
+	version-software.$(OBJEXT) version-db.$(OBJEXT)
+version_OBJECTS = $(am_version_OBJECTS)
+version_DEPENDENCIES = /usr/local/lib/liboctetos-core-cc.so \
+	/usr/lib/libsqlite.so
 version_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CXXLD) $(AM_CXXFLAGS) \
 	$(CXXFLAGS) $(version_LDFLAGS) $(LDFLAGS) -o $@
@@ -146,8 +155,8 @@ AM_V_CXXLD = $(am__v_CXXLD_@AM_V@)
 am__v_CXXLD_ = $(am__v_CXXLD_@AM_DEFAULT_V@)
 am__v_CXXLD_0 = @echo "  CXXLD   " $@;
 am__v_CXXLD_1 = 
-SOURCES = $(version_SOURCES)
-DIST_SOURCES = $(version_SOURCES)
+SOURCES = $(testing_v0_SOURCES) $(version_SOURCES)
+DIST_SOURCES = $(testing_v0_SOURCES) $(version_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -337,11 +346,19 @@ AM_CFLAGS = \
 
 version_SOURCES = \
 	version.cc \
-	software.cc
+	software.cc \
+	db.cc
 
 version_LDFLAGS = 
 version_CPPFLAGS = -DENABLED_AUTOTOOLS 
-version_LDADD = /usr/local/lib/liboctetos-core-cc.so
+version_LDADD = /usr/local/lib/liboctetos-core-cc.so /usr/lib/libsqlite.so -lsqlite3
+testing_v0_SOURCES = \
+	testing-v0.cc \
+	db.cc
+
+testing_v0_LDFLAGS = 
+testing_v0_CPPFLAGS = -DENABLED_AUTOTOOLS 
+testing_v0_LDADD = /usr/local/lib/liboctetos-core-cc.so /usr/lib/libsqlite.so -lsqlite3
 all: all-am
 
 .SUFFIXES:
@@ -425,6 +442,10 @@ clean-binPROGRAMS:
 	echo " rm -f" $$list; \
 	rm -f $$list
 
+testing-v0$(EXEEXT): $(testing_v0_OBJECTS) $(testing_v0_DEPENDENCIES) $(EXTRA_testing_v0_DEPENDENCIES) 
+	@rm -f testing-v0$(EXEEXT)
+	$(AM_V_CXXLD)$(testing_v0_LINK) $(testing_v0_OBJECTS) $(testing_v0_LDADD) $(LIBS)
+
 version$(EXEEXT): $(version_OBJECTS) $(version_DEPENDENCIES) $(EXTRA_version_DEPENDENCIES) 
 	@rm -f version$(EXEEXT)
 	$(AM_V_CXXLD)$(version_LINK) $(version_OBJECTS) $(version_LDADD) $(LIBS)
@@ -435,6 +456,9 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/testing_v0-db.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/testing_v0-testing-v0.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/version-db.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/version-software.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/version-version.Po@am__quote@
 
@@ -458,6 +482,34 @@ distclean-compile:
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='$<' object='$@' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LTCXXCOMPILE) -c -o $@ $<
+
+testing_v0-testing-v0.o: testing-v0.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(testing_v0_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT testing_v0-testing-v0.o -MD -MP -MF $(DEPDIR)/testing_v0-testing-v0.Tpo -c -o testing_v0-testing-v0.o `test -f 'testing-v0.cc' || echo '$(srcdir)/'`testing-v0.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/testing_v0-testing-v0.Tpo $(DEPDIR)/testing_v0-testing-v0.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='testing-v0.cc' object='testing_v0-testing-v0.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(testing_v0_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o testing_v0-testing-v0.o `test -f 'testing-v0.cc' || echo '$(srcdir)/'`testing-v0.cc
+
+testing_v0-testing-v0.obj: testing-v0.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(testing_v0_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT testing_v0-testing-v0.obj -MD -MP -MF $(DEPDIR)/testing_v0-testing-v0.Tpo -c -o testing_v0-testing-v0.obj `if test -f 'testing-v0.cc'; then $(CYGPATH_W) 'testing-v0.cc'; else $(CYGPATH_W) '$(srcdir)/testing-v0.cc'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/testing_v0-testing-v0.Tpo $(DEPDIR)/testing_v0-testing-v0.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='testing-v0.cc' object='testing_v0-testing-v0.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(testing_v0_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o testing_v0-testing-v0.obj `if test -f 'testing-v0.cc'; then $(CYGPATH_W) 'testing-v0.cc'; else $(CYGPATH_W) '$(srcdir)/testing-v0.cc'; fi`
+
+testing_v0-db.o: db.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(testing_v0_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT testing_v0-db.o -MD -MP -MF $(DEPDIR)/testing_v0-db.Tpo -c -o testing_v0-db.o `test -f 'db.cc' || echo '$(srcdir)/'`db.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/testing_v0-db.Tpo $(DEPDIR)/testing_v0-db.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='db.cc' object='testing_v0-db.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(testing_v0_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o testing_v0-db.o `test -f 'db.cc' || echo '$(srcdir)/'`db.cc
+
+testing_v0-db.obj: db.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(testing_v0_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT testing_v0-db.obj -MD -MP -MF $(DEPDIR)/testing_v0-db.Tpo -c -o testing_v0-db.obj `if test -f 'db.cc'; then $(CYGPATH_W) 'db.cc'; else $(CYGPATH_W) '$(srcdir)/db.cc'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/testing_v0-db.Tpo $(DEPDIR)/testing_v0-db.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='db.cc' object='testing_v0-db.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(testing_v0_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o testing_v0-db.obj `if test -f 'db.cc'; then $(CYGPATH_W) 'db.cc'; else $(CYGPATH_W) '$(srcdir)/db.cc'; fi`
 
 version-version.o: version.cc
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(version_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT version-version.o -MD -MP -MF $(DEPDIR)/version-version.Tpo -c -o version-version.o `test -f 'version.cc' || echo '$(srcdir)/'`version.cc
@@ -486,6 +538,20 @@ version-software.obj: software.cc
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='software.cc' object='version-software.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(version_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o version-software.obj `if test -f 'software.cc'; then $(CYGPATH_W) 'software.cc'; else $(CYGPATH_W) '$(srcdir)/software.cc'; fi`
+
+version-db.o: db.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(version_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT version-db.o -MD -MP -MF $(DEPDIR)/version-db.Tpo -c -o version-db.o `test -f 'db.cc' || echo '$(srcdir)/'`db.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/version-db.Tpo $(DEPDIR)/version-db.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='db.cc' object='version-db.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(version_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o version-db.o `test -f 'db.cc' || echo '$(srcdir)/'`db.cc
+
+version-db.obj: db.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(version_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT version-db.obj -MD -MP -MF $(DEPDIR)/version-db.Tpo -c -o version-db.obj `if test -f 'db.cc'; then $(CYGPATH_W) 'db.cc'; else $(CYGPATH_W) '$(srcdir)/db.cc'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/version-db.Tpo $(DEPDIR)/version-db.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='db.cc' object='version-db.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(version_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o version-db.obj `if test -f 'db.cc'; then $(CYGPATH_W) 'db.cc'; else $(CYGPATH_W) '$(srcdir)/db.cc'; fi`
 
 mostlyclean-libtool:
 	-rm -f *.lo
