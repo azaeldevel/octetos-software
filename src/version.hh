@@ -14,7 +14,7 @@ namespace software
 class CmdVersion
 {
 private:
-    std::string dirrepo;    
+    std::string dirdb;    
     std::string strOption;
     octetos::core::Version version;
     bool mininalOption;
@@ -34,6 +34,7 @@ public:
     int base(int argc, char *argv[]); 
     int pack(int argc, char *argv[]);  
     int index(int argc, char *argv[]);
+	int indexAdd(int argc, char *argv[]);
 	int help(int argc, char *argv[]);
 	int versioncmd(int argc, char *argv[]);
     CmdVersion();

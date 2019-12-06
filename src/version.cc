@@ -1,5 +1,7 @@
 #include "software.hh"
 #include "version.hh"
+#include "db.hh"
+
 
 namespace octetos
 {
@@ -30,32 +32,88 @@ int CmdVersion::help(int argc, char *argv[])
 	std::cout << "Use :\n";
 	std::cout << "\tversion vertext [--minimal=minver] [--maximal=verver] [--target='reference text']\n";
 	std::cout << "\tversion vertext --get-numbers-only\n";
-	std::cout << "\tversion vertext [--major] [--minor] [--path] \n";
-	std::cout << "\tversion index [--add] [--remove] pakagename vertext \n";
+	std::cout << "\tversion vertext [--major] [--minor] [--patch]\n";
+	std::cout << "\tversion index add pakagename vertext artifac1 [artifact2 [artifact3 [..]]]\n";
     return EXIT_SUCCESS;
 }
-	
-int CmdVersion::index(int argc, char *argv[])
+int CmdVersion::indexAdd(int argc, char *argv[])
 {
-    bool packaddOption = false;
-    std::string packaddOptinVal;
-    //std::cout << "p: " << argv << "\n";
-    //std::cout << "str: " << argv[0] << "\n";
-    for(int i = 0; i< argc; i++)
+    std::string pakagename(argv[1]);
+    if(pakagename.empty())
     {
-        strOption = argv[i];
-        //std::cout << "O: " << strOption << "\n";
-        std::string packaddPrefix("--add");
-        int addPrefixIndex = strOption.compare(0, packaddPrefix.size(), packaddPrefix);
-        if(!addPrefixIndex)
-        {
-            packaddOption = true;
-            packaddOptinVal = strOption.substr(packaddPrefix.size());
-            //std::cout << "File:" << packcreateOptinVal << "\n";
-            
-        }
-    }    
+		//std::cout << "Pkg: " << pakagename << "\n";
+    	//return indexAdd(argc-1,argv+1); 
+		return EXIT_FAILURE;
+    }	
+	std::string strver = argv[2];
+	octetos::software::Version ver;
+	if(!ver.from(strver))
+	{
+		return EXIT_FAILURE;
+	}
+	std::vector<std::string> arts;
+	for(int i = 3; i < argc; i++)
+	{
+		arts.push_back(argv[i]);
+		//std::cout << "Artifacts: " << argv[i] << "\n";
+	}
+
+	octetos::software::Conector conn(dirdb);
+
+	octetos::software::Package pack;
+	if(!pack.selectByPackage(conn,pakagename))
+	{
+		octetos::software::Package pack;
+		if(pack.insert(conn,pakagename))
+		{
+			pack.selectByPackage(conn,pakagename);
+			//std::cout << "Pack inserted.\n";
+		}
+		else
+		{
+			std::cout << "Pack not inserted.\n";
+		}
+	}
+
+	octetos::software::Artifact artifact;
+	//std::string artiname = "artitest" ;
+	//artiname += std::to_string(iSecret);
+	//std::string strpath = "pathtest" ;
+	//strpath += "-" + std::to_string(iSecret);
+	for(std::string strart : arts)
+	{
+		if(artifact.selectByArtifact(conn,strart))
+		{
+			if(artifact.insert(conn,ver,strart,&pack))
+			{
+				artifact.selectByArtifact(conn,strart);
+			}
+			else
+			{
+				std::cerr << "Artefacto not inserted.\n";
+				return EXIT_FAILURE;
+			}
+		}
+		else
+		{
+			return EXIT_FAILURE;
+		}
+	}
+	
     return EXIT_SUCCESS;
+}
+int CmdVersion::index(int argc, char *argv[])
+{    
+   	strOption = argv[1];
+    //std::cout << "O: " << strOption << "\n";
+    std::string addPrefix("add");
+    int addPrefixIndex = strOption.compare(0, addPrefix.size(), addPrefix);
+    if(!addPrefixIndex)
+    {
+    	return indexAdd(argc-1,argv+1);            
+    } 
+	
+    return EXIT_FAILURE;
 }
 
 int CmdVersion::pack(int argc, char *argv[])
@@ -91,8 +149,16 @@ CmdVersion::CmdVersion()
     maximalOptionEcho = false;
     targetOption = false;
     packCommand = false;
-    
-    dirrepo = "/etc/octetos/version";    
+
+	octetos::core::Artifact artifact = getPackageInfo();
+	if(artifact.version.getStage() > octetos_version_Stage::snapshot)
+	{
+		dirdb = "/etc/octetos/version/db";
+	}
+	else
+	{
+    	dirdb = "/home/azael/develop/octetos-software/src/db-test";
+	}
 }
 int CmdVersion::base(int argc, char *argv[])
 {
@@ -293,41 +359,45 @@ int CmdVersion::base(int argc, char *argv[])
             
             return EXIT_SUCCESS;
         }
+        
+        strOption = argv[i]; 
+        std::string packCommandStr("pack");
+        int packCommandStrIndex = strOption.compare(0, packCommandStr.size(), packCommandStr);
+        if(!packCommandStrIndex)
+        {
+            ///std::cout << "str:" << strOption << "\n";
+            //std::cout << "pstr:" << strOption << "\n";
+            packCommand = true;
+            //std::cout << "p0:" << argv << "\n";
+            //std::cout << "pi:" << argv + i << "\n";
+            //std::cout << "argc:" << argc << "\n";
+            //std::cout << "argc-i:" << argc-i << "\n";
+            return pack(argc-i,argv+i);
+        }
+        
+        
+        strOption = argv[i]; 
+        std::string indexCommandStr("index");
+        int indexCommandStrIndex = strOption.compare(0, indexCommandStr.size(), indexCommandStr);
+        if(!indexCommandStrIndex)
+        {
+            //std::cout << "str:" << strOption << "\n";
+            //std::cout << "pstr:" << strOption << "\n";
+            indexCommand = true;
+            //std::cout << "p0:" << argv << "\n";
+            //std::cout << "pi:" << argv + i << "\n";
+            //std::cout << "argc:" << argc << "\n";
+            //std::cout << "argc-i:" << argc-i << "\n";
+            return index(argc-i,argv+i);
+        }
+        
+        return EXIT_SUCCESS;
     }
-    
-    strOption = argv[i]; 
-    std::string packCommandStr("pack");
-    int packCommandStrIndex = strOption.compare(0, packCommandStr.size(), packCommandStr);
-    if(!packCommandStrIndex)
-    {
-        ///std::cout << "str:" << strOption << "\n";
-        //std::cout << "pstr:" << strOption << "\n";
-        packCommand = true;
-        //std::cout << "p0:" << argv << "\n";
-        //std::cout << "pi:" << argv + i << "\n";
-        //std::cout << "argc:" << argc << "\n";
-        //std::cout << "argc-i:" << argc-i << "\n";
-        return pack(argc-i,argv+i);
-    }
-    
-    
-    strOption = argv[i]; 
-    std::string indexCommandStr("index");
-    int indexCommandStrIndex = strOption.compare(0, indexCommandStr.size(), indexCommandStr);
-    if(!indexCommandStrIndex)
-    {
-        //std::cout << "str:" << strOption << "\n";
-        //std::cout << "pstr:" << strOption << "\n";
-        indexCommand = true;
-        //std::cout << "p0:" << argv << "\n";
-        //std::cout << "pi:" << argv + i << "\n";
-        //std::cout << "argc:" << argc << "\n";
-        //std::cout << "argc-i:" << argc-i << "\n";
-        return index(argc-i,argv+i);
-    }
-    
-    return EXIT_SUCCESS;
+    return EXIT_FAILURE;
 }
+
+
+
 
 }
 }
@@ -335,8 +405,8 @@ int CmdVersion::base(int argc, char *argv[])
 
 int main(int argc, char *argv[])
 {	
-    int i = 1;    
-    std::string strOption = argv[i]; 
+    //int i = 1;    
+    std::string strOption = argv[1]; 
 	octetos::software::CmdVersion cmd;	
 	if(strOption.compare("--version") == 0)
 	{
@@ -346,9 +416,12 @@ int main(int argc, char *argv[])
 	{
 		return cmd.help(argc,argv);
 	}
-	else
+	else if(strOption.compare("index") == 0)
 	{
-		    
+		return cmd.index(argc-1,argv+1);
+	}
+	else
+	{		    
 		return cmd.base(argc,argv);
 	}
 }

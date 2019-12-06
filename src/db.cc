@@ -3,6 +3,9 @@
 #include <stdio.h>
 #include <sqlite3.h> 
 
+#include "db.hh"
+
+
 namespace octetos
 {
 namespace software
@@ -11,10 +14,10 @@ namespace software
 	{
 		return id;
 	}
-	bool Artifact::insert(Conector& conn, const std::string& name, const std::string& fullpath, Package* package)
+	bool Artifact::insert(Conector& conn, const Version& version,const std::string& path, Package* package)
 	{
-		std::string sql = "INSERT INTO artifact(name,fullpath,package) values (";
-		sql += "'" + name + "','" + fullpath + "','" + std::to_string(package->getID()) + "')";
+		std::string sql = "INSERT INTO artifact(version,package,fullpath) values (";
+		sql += "'" + std::to_string(version.getID()) + "','" + std::to_string(package->getID())+ "','" + path + "')";
 		//std::cout << "SQL : " << sql << "\n";
 		if(conn.query(sql,callbackByArtifact,this))
         {
@@ -25,7 +28,7 @@ namespace software
 	}	
 	bool Artifact::selectAll(Conector& conect, std::vector<Artifact*>& vec)
     {
-        std::string sql = "SELECT id,major,minor,patch,stage,build FROM version";
+        std::string sql = "SELECT id,fullpath,version,package FROM version";
         if(conect.query(sql,callbackAll,&vec))
         {
             return true;
@@ -38,7 +41,6 @@ namespace software
         std::vector<Artifact*>* lst = (std::vector<Artifact*>*)obj;
         Artifact* p = new Artifact();
         p->id = std::atoi(argv[0]);
-        p->name = std::atoi(argv[1]);
         lst->push_back(p);
         return 0;
     }
@@ -53,9 +55,10 @@ namespace software
     {
         std::string sql = "SELECT id FROM artifact WHERE fullpath = '";
         sql = sql + path + "'";
-		std::cout << "SQL : " << sql << "\n";
+		//std::cout << "SQL : " << sql << "\n";
         if(connect.query(sql,callbackByArtifact,this))
         {
+			id = sqlite3_last_insert_rowid((sqlite3*)connect.getServerConnector());
             return true;
         }
 			
@@ -81,6 +84,7 @@ namespace software
 		//std::cout << "SQL : " << sql << "\n";
 		if(conn.query(sql,callbackByPackage,this))
         {
+			id = sqlite3_last_insert_rowid((sqlite3*)conn.getServerConnector());
             return true;
         }
 			
@@ -119,6 +123,7 @@ namespace software
         sql = sql + name + "'";
         if(connect.query(sql,callbackByPackage,this))
         {
+			id = sqlite3_last_insert_rowid((sqlite3*)connect.getServerConnector());
             return true;
         }
 			
@@ -136,20 +141,21 @@ namespace software
 	{
 		return id;
 	}
-	bool Version::insert(Conector& conn,Artifact* artifact,const std::string& str,const std::string& path)
+	bool Version::insert(Conector& conn,const std::string& strver)
 	{
-		if(!from(str))
+		if(!from(strver))
 		{
-			std::cout << "Error. " << str << "\n"  ;
+			std::cout << "Error. " << strver << "\n"  ;
 			return false;
 		}
-		std::string sql = "INSERT INTO version(artifact,major,minor,patch,stage,string) values (";
-		sql += "'" + std::to_string(artifact->getID()) + "','" + std::to_string(getMajor()) + "','" + std::to_string(getMinor()) + "','" + std::to_string(getPatch()) + "','";
+		std::string sql = "INSERT INTO version(major,minor,patch,stage,string) values (";
+		sql += "'" + std::to_string(getMajor()) + "','" + std::to_string(getMinor()) + "','" + std::to_string(getPatch()) + "','";
 		sql += "unknown" ;
-		sql += "','" + str + "')";
-		//std::cout << "SQL : " << sql << "\n";
+		sql += "','" + strver + "')";
+		std::cout << "SQL : " << sql << "\n";
 		if(conn.query(sql,callbackByArtifact,this))
         {
+			id = sqlite3_last_insert_rowid((sqlite3*)conn.getServerConnector());
             return true;
         }
 			

@@ -27,7 +27,7 @@ int main(int argc, char *argv[])
 	if(pack.insert(conn,packname))
 	{
 		pack.selectByPackage(conn,packname);
-		//std::cout << "Pack inserted.\n";
+		std::cout << "Pack inserted.\n";
 	}
 	else
 	{
@@ -35,15 +35,26 @@ int main(int argc, char *argv[])
 	}
 	
 	
+	octetos::software::Version ver1;
+	std::string ver1str = "1.2.3-alpha" ;
+	if(ver1.insert(conn,ver1str))
+	{
+		std::cout << "Artefacto inserted.\n";
+	}
+	else
+	{
+		std::cout << "Version not inserted.\n";
+	}
+	
 	octetos::software::Artifact arti;
 	std::string artiname = "artitest" ;
 	artiname += std::to_string(iSecret);
 	std::string strpath = "pathtest" ;
 	strpath += "-" + std::to_string(iSecret);
-	if(arti.insert(conn,packname,strpath,&pack))
+	if(arti.insert(conn,ver1,strpath,&pack))
 	{
 		arti.selectByArtifact(conn,strpath);
-		//std::cout << "Artefacto inserted.\n";
+		std::cout << "Artefacto inserted.\n";
 	}
 	else
 	{
@@ -51,16 +62,6 @@ int main(int argc, char *argv[])
 	}
 	
 	
-	octetos::software::Version ver1;
-	std::string ver1str = "1.2.3-alpha" ;
-	if(ver1.insert(conn,&arti,ver1str,strpath))
-	{
-		//std::cout << "Artefacto inserted.\n";
-	}
-	else
-	{
-		std::cout << "Version not inserted.\n";
-	}
 	
     return 0;
 }
