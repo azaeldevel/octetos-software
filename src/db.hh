@@ -17,6 +17,22 @@ namespace software
         bool query(const std::string&,int (*callback)(void*,int,char**,char**),void* obj);
         void* getServerConnector();
     };
+
+	class Package
+    {
+	private:
+        int id;  
+		std::string name;
+		std::string note;
+      
+        static int callbackByPackage(void *data, int argc, char **argv, char **azColName);
+        static int callbackAll(void *data, int argc, char **argv, char **azColName);
+			
+    public:
+        bool selectByPackage(Conector& conect, int artifact);
+        static bool selectAll(Conector& conect, std::vector<Package*>& vec);
+		bool insert(Conector& conn, const std::string& name);
+    };
         
     class Version : public octetos::core::Version
     {
@@ -28,6 +44,7 @@ namespace software
     public:
         bool selectByArtifact(Conector& conect, int artifact);
         static bool selectAll(Conector& conect, std::vector<Version*>& vec);
+		bool insert(Conector& conn, const std::string& sql);
     };    
     
 }

@@ -7,6 +7,71 @@ namespace octetos
 {
 namespace software
 {
+
+	bool Package::insert(Conector& conn, const std::string& name)
+	{
+		std::string sql = "INSERT INTO package(name) values (";
+		sql += "'" + name + "')";
+		//std::cout << "SQL : " << sql << "\n";
+		if(conn.query(sql,callbackByPackage,this))
+        {
+            return true;
+        }
+			
+        return false;
+	}
+	
+	bool Package::selectAll(Conector& conect, std::vector<Package*>& vec)
+    {
+        std::string sql = "SELECT id,major,minor,patch,stage,build FROM version";
+        if(conect.query(sql,callbackAll,&vec))
+        {
+            return true;
+        }
+			
+        return false;
+    }
+			
+    int Package::callbackAll(void *obj, int argc, char **argv, char **azColName)
+    {
+        std::vector<Package*>* lst = (std::vector<Package*>*)obj;
+        Package* p = new Package();
+        p->id = std::atoi(argv[0]);
+        p->name = std::atoi(argv[1]);
+        lst->push_back(p);
+        return 0;
+    }
+    int Package::callbackByPackage(void *obj, int argc, char **argv, char **azColName)
+    {
+        Version* p = (Version*)obj;	
+        //p->id = std::atoi(argv[0]);
+        p->setNumbers(std::atoi(argv[1]),std::atoi(argv[2]),std::atoi(argv[3]));	
+        
+        return 0;
+    }
+    bool Package::selectByPackage(Conector& connect, int artifact)
+    {
+        std::string sql = "SELECT id,major,minor,patch,stage,build FROM version WHERE artifact = '";
+        sql = sql + std::to_string(artifact) + "'";
+        if(connect.query(sql,callbackByPackage,this))
+        {
+            return true;
+        }
+			
+        return false;
+    }
+
+
+
+
+	
+
+
+	
+	bool Version::insert(Conector& conn, const std::string& sql)
+	{
+
+	}
     /**
     ***
     **/
@@ -49,7 +114,16 @@ namespace software
 			
         return false;
     }
-		
+
+
+
+
+
+
+
+
+
+	
     /**
     ***
     **/
@@ -74,12 +148,8 @@ namespace software
             fprintf(stderr, "SQL error(%i): %s\n",rc, zErrMsg);
             sqlite3_free(zErrMsg);
             return false;			
-        } 
-        else 
-        {
-            //fprintf(stdout, "Operation done successfully\n");
-            return true;			
         }
+		
         return true;			
     }
     void* Conector::getServerConnector()
