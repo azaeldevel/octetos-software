@@ -7,20 +7,22 @@ namespace octetos
 {
 namespace software
 {
-
+	int Artifact::getID()const
+	{
+		return id;
+	}
 	bool Artifact::insert(Conector& conn, const std::string& name, const std::string& fullpath, Package* package)
 	{
 		std::string sql = "INSERT INTO artifact(name,fullpath,package) values (";
 		sql += "'" + name + "','" + fullpath + "','" + std::to_string(package->getID()) + "')";
-		std::cout << "SQL : " << sql << "\n";
+		//std::cout << "SQL : " << sql << "\n";
 		if(conn.query(sql,callbackByArtifact,this))
         {
             return true;
         }
 			
         return false;
-	}
-	
+	}	
 	bool Artifact::selectAll(Conector& conect, std::vector<Artifact*>& vec)
     {
         std::string sql = "SELECT id,major,minor,patch,stage,build FROM version";
@@ -30,8 +32,7 @@ namespace software
         }
 			
         return false;
-    }
-			
+    }			
     int Artifact::callbackAll(void *obj, int argc, char **argv, char **azColName)
     {
         std::vector<Artifact*>* lst = (std::vector<Artifact*>*)obj;
@@ -44,15 +45,15 @@ namespace software
     int Artifact::callbackByArtifact(void *obj, int argc, char **argv, char **azColName)
     {
         Artifact* p = (Artifact*)obj;	
-        //p->id = std::atoi(argv[0]);
-        //p->setNumbers(std::atoi(argv[1]),std::atoi(argv[2]),std::atoi(argv[3]));	
+        p->id = std::atoi(argv[0]);
         
         return 0;
     }
-    bool Artifact::selectByArtifact(Conector& connect, int artifact)
+    bool Artifact::selectByArtifact(Conector& connect, const std::string& path)
     {
-        std::string sql = "SELECT id,major,minor,patch,stage,build FROM version WHERE artifact = '";
-        sql = sql + std::to_string(artifact) + "'";
+        std::string sql = "SELECT id FROM artifact WHERE fullpath = '";
+        sql = sql + path + "'";
+		std::cout << "SQL : " << sql << "\n";
         if(connect.query(sql,callbackByArtifact,this))
         {
             return true;
@@ -84,8 +85,7 @@ namespace software
         }
 			
         return false;
-	}
-	
+	}	
 	bool Package::selectAll(Conector& conect, std::vector<Package*>& vec)
     {
         std::string sql = "SELECT id,major,minor,patch,stage,build FROM version";
@@ -95,8 +95,7 @@ namespace software
         }
 			
         return false;
-    }
-			
+    }			
     int Package::callbackAll(void *obj, int argc, char **argv, char **azColName)
     {
         std::vector<Package*>* lst = (std::vector<Package*>*)obj;
@@ -133,9 +132,28 @@ namespace software
 
 
 	
-	bool Version::insert(Conector& conn, const std::string& sql)
+	int Version::getID()const
 	{
-
+		return id;
+	}
+	bool Version::insert(Conector& conn,Artifact* artifact,const std::string& str,const std::string& path)
+	{
+		if(!from(str))
+		{
+			std::cout << "Error. " << str << "\n"  ;
+			return false;
+		}
+		std::string sql = "INSERT INTO version(artifact,major,minor,patch,stage,string) values (";
+		sql += "'" + std::to_string(artifact->getID()) + "','" + std::to_string(getMajor()) + "','" + std::to_string(getMinor()) + "','" + std::to_string(getPatch()) + "','";
+		sql += "unknown" ;
+		sql += "','" + str + "')";
+		//std::cout << "SQL : " << sql << "\n";
+		if(conn.query(sql,callbackByArtifact,this))
+        {
+            return true;
+        }
+			
+        return false;
 	}
     /**
     ***
@@ -170,7 +188,7 @@ namespace software
     }
     bool Version::selectByArtifact(Conector& connect, int artifact)
     {
-        std::string sql = "SELECT id,major,minor,patch,stage,build FROM version WHERE artifact = '";
+        std::string sql = "SELECT id,major,minor,patch,stage,build,string FROM version WHERE artifact = '";
         sql = sql + std::to_string(artifact) + "'";
         if(connect.query(sql,callbackByArtifact,this))
         {

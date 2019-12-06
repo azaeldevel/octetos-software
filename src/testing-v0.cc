@@ -9,9 +9,9 @@
 int main(int argc, char *argv[])
 {
     octetos::software::Conector conn("/home/azael/develop/octetos-software/src/db-test");
-	octetos::software::Version ver;
-	ver.selectByArtifact(conn,1);
-	std::cout<< "Version : " << ver.toString() << std::endl;
+	//octetos::software::Version ver;
+	//ver.selectByArtifact(conn,1);
+	//std::cout<< "Version : " << ver.toString() << std::endl;
 
 	int iSecret, iGuess;
 	/* initialize random seed: */
@@ -27,26 +27,40 @@ int main(int argc, char *argv[])
 	if(pack.insert(conn,packname))
 	{
 		pack.selectByPackage(conn,packname);
-		std::cout << "Pack inserted.\n";
+		//std::cout << "Pack inserted.\n";
 	}
 	else
 	{
 		std::cout << "Pack not inserted.\n";
 	}
-
+	
 	
 	octetos::software::Artifact arti;
 	std::string artiname = "artitest" ;
 	artiname += std::to_string(iSecret);
-	if(arti.insert(conn,packname,"path test",&pack))
+	std::string strpath = "pathtest" ;
+	strpath += "-" + std::to_string(iSecret);
+	if(arti.insert(conn,packname,strpath,&pack))
 	{
-		std::cout << "Artefacto inserted.\n";
+		arti.selectByArtifact(conn,strpath);
+		//std::cout << "Artefacto inserted.\n";
 	}
 	else
 	{
 		std::cout << "Artefacto not inserted.\n";
 	}
-
+	
+	
+	octetos::software::Version ver1;
+	std::string ver1str = "1.2.3-alpha" ;
+	if(ver1.insert(conn,&arti,ver1str,strpath))
+	{
+		//std::cout << "Artefacto inserted.\n";
+	}
+	else
+	{
+		std::cout << "Version not inserted.\n";
+	}
 	
     return 0;
 }

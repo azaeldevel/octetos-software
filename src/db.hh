@@ -44,11 +44,12 @@ namespace software
       
         static int callbackByArtifact(void *data, int argc, char **argv, char **azColName);
         static int callbackAll(void *data, int argc, char **argv, char **azColName);
-			
+		
     public:
-        bool selectByArtifact(Conector& conect, int artifact);
+        bool selectByArtifact(Conector& conect, const std::string& path);
         static bool selectAll(Conector& conect, std::vector<Artifact*>& vec);
 		bool insert(Conector& conn, const std::string& name, const std::string& fullpath, Package* package);
+		int getID()const;
     };
 
     class Version : public octetos::core::Version
@@ -61,7 +62,8 @@ namespace software
     public:
         bool selectByArtifact(Conector& conect, int artifact);
         static bool selectAll(Conector& conect, std::vector<Version*>& vec);
-		bool insert(Conector& conn, const std::string& sql);
+		bool insert(Conector& conn,Artifact* artifact,const std::string& str,const std::string& path);
+		int getID()const;
     };    
     
 }
