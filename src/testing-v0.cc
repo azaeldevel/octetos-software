@@ -26,11 +26,27 @@ int main(int argc, char *argv[])
 	packname += std::to_string(iSecret);
 	if(pack.insert(conn,packname))
 	{
+		pack.selectByPackage(conn,packname);
 		std::cout << "Pack inserted.\n";
 	}
 	else
 	{
 		std::cout << "Pack not inserted.\n";
 	}
+
+	
+	octetos::software::Artifact arti;
+	std::string artiname = "artitest" ;
+	artiname += std::to_string(iSecret);
+	if(arti.insert(conn,packname,"path test",&pack))
+	{
+		std::cout << "Artefacto inserted.\n";
+	}
+	else
+	{
+		std::cout << "Artefacto not inserted.\n";
+	}
+
+	
     return 0;
 }

@@ -27,13 +27,30 @@ namespace software
       
         static int callbackByPackage(void *data, int argc, char **argv, char **azColName);
         static int callbackAll(void *data, int argc, char **argv, char **azColName);
-			
+		
     public:
-        bool selectByPackage(Conector& conect, int artifact);
+        bool selectByPackage(Conector& conect, const std::string name);
         static bool selectAll(Conector& conect, std::vector<Package*>& vec);
 		bool insert(Conector& conn, const std::string& name);
+		int getID()const;
     };
         
+	class Artifact
+    {
+	private:
+        int id;  
+		std::string name;
+		Package* package;
+      
+        static int callbackByArtifact(void *data, int argc, char **argv, char **azColName);
+        static int callbackAll(void *data, int argc, char **argv, char **azColName);
+			
+    public:
+        bool selectByArtifact(Conector& conect, int artifact);
+        static bool selectAll(Conector& conect, std::vector<Artifact*>& vec);
+		bool insert(Conector& conn, const std::string& name, const std::string& fullpath, Package* package);
+    };
+
     class Version : public octetos::core::Version
     {
 	private:
