@@ -68,7 +68,7 @@ int CmdVersion::indexAdd(int argc, char *argv[])
 	}
 	
 	octetos::software::Package pack;
-	if(!pack.selectByName(conn,pakagename))
+	if(pack.selectByName(conn,pakagename))
 	{
 		if(pack.insert(conn,pakagename,ver))
 		{
@@ -77,27 +77,21 @@ int CmdVersion::indexAdd(int argc, char *argv[])
 		}
 		else
 		{
-			std::cout << "Pack not inserted.\n";
+			std::cerr << "Pack not inserted.\n";
+			return EXIT_FAILURE;
 		}
 	}
 
 	octetos::software::Artifact artifact;
 	for(std::string strart : arts)
 	{
-		if(artifact.selectByArtifact(conn,strart))
+		if(artifact.insert(conn,ver,strart,&pack))
 		{
-			if(artifact.insert(conn,ver,strart,&pack))
-			{
-				artifact.selectByArtifact(conn,strart);
-			}
-			else
-			{
-				std::cerr << "Artefacto not inserted.\n";
-				return EXIT_FAILURE;
-			}
+			artifact.selectByArtifact(conn,strart);
 		}
 		else
 		{
+			std::cerr << "Artefacto not inserted.\n";
 			return EXIT_FAILURE;
 		}
 	}

@@ -27,7 +27,7 @@ namespace software
 			
         return false;
 	}	
-	bool Artifact::selectAll(Conector& conect, std::vector<Artifact*>& vec)
+	/*bool Artifact::selectAll(Conector& conect, std::vector<Artifact*>& vec)
     {
         std::string sql = "SELECT id,fullpath,version,package FROM version";
         if(conect.query(sql,callbackAll,&vec))
@@ -36,15 +36,15 @@ namespace software
         }
 			
         return false;
-    }			
-    int Artifact::callbackAll(void *obj, int argc, char **argv, char **azColName)
+    }*/			
+    /*int Artifact::callbackAll(void *obj, int argc, char **argv, char **azColName)
     {
         std::vector<Artifact*>* lst = (std::vector<Artifact*>*)obj;
         Artifact* p = new Artifact();
         p->id = std::atoi(argv[0]);
         lst->push_back(p);
         return 0;
-    }
+    }*/
     int Artifact::callbackByArtifact(void *obj, int argc, char **argv, char **azColName)
     {
         Artifact* p = (Artifact*)obj;	
@@ -81,8 +81,8 @@ namespace software
 	{
 		std::string sql = "INSERT INTO package(name,version) values (";
 		sql += "'" + name + "','" + std::to_string(version.getID()) + "')";
-		//std::cout << "SQL : " << sql << "\n";
-		if(conn.query(sql,callbackByPackage,this))
+		std::cout << "SQL : " << sql << "\n";
+		if(conn.query(sql,callbackByFullLine,this))
         {
 			id = sqlite3_last_insert_rowid((sqlite3*)conn.getServerConnector());
             return true;
@@ -91,42 +91,52 @@ namespace software
 		id = -1;
         return false;
 	}	
-	bool Package::selectAll(Conector& conect, std::vector<Package*>& vec)
+	/*bool Package::selectAll(Conector& conect, std::vector<Package*>& vec)
     {
-        std::string sql = "SELECT id,name,version FROM version";
+        std::string sql = "SELECT id,name,version,note FROM version";
         if(conect.query(sql,callbackAll,&vec))
         {
             return true;
         }
 			
         return false;
-    }			
-    int Package::callbackAll(void *obj, int argc, char **argv, char **azColName)
+    }*/			
+    /*int Package::callbackAll(void *obj, int argc, char **argv, char **azColName)
     {
         std::vector<Package*>* lst = (std::vector<Package*>*)obj;
         Package* p = new Package();
         p->id = std::atoi(argv[0]);
         p->name = argv[1];
 		p->version = std::atoi(argv[2]);
+		p->note = argv[3];
 		
         lst->push_back(p);
         return 0;
-    }
-    int Package::callbackByPackage(void *obj, int argc, char **argv, char **azColName)
+    }*/
+    int Package::callbackByFullLine(void *obj, int argc, char **argv, char **azColName)
     {
-        Package* p = (Package*)obj;	
-        p->id = std::atoi(argv[0]);
-        p->name = argv[1];
-		p->version = std::atoi(argv[2]);	
-        
+        Package* p = (Package*)obj;
+		if(argc == 1)
+		{
+		    p->id = std::atoi(argv[0]);
+		    p->name = argv[1];
+			p->version = std::atoi(argv[2]);
+			p->note = argv[3];	
+		}
+		else
+		{
+			p->id = -1;
+		}
+		
         return 0;
     }
     bool Package::selectByName(Conector& connect, const std::string name)
     {
-        std::string sql = "SELECT id,name,version FROM package WHERE name = '";
+        std::string sql = "SELECT id,name,version,note FROM package WHERE name = '";
         sql = sql + name + "' ORDER BY id DESC LIMIT 1 ";
-        if(connect.query(sql,callbackByPackage,this))
+        if(connect.query(sql,callbackByFullLine,this))
         {
+			if(id == -1) return false;
             return true;
         }
 			
@@ -137,7 +147,11 @@ namespace software
 
 
 	
-
+	Version& Version::operator=(int id)
+	{
+		this->id = id;
+		return *this;
+	}
 	Version::Version()
 	{
 		id = -1;
@@ -174,7 +188,7 @@ namespace software
     /**
     ***
     **/
-    bool Version::selectAll(Conector& conect, std::vector<Version*>& vec)
+    /*bool Version::selectAll(Conector& conect, std::vector<Version*>& vec)
     {
         std::string sql = "SELECT id,major,minor,patch,stage,build FROM version";
         if(conect.query(sql,callbackAll,&vec))
@@ -183,9 +197,8 @@ namespace software
         }
 			
         return false;
-    }
-			
-    int Version::callbackAll(void *obj, int argc, char **argv, char **azColName)
+    }	*/		
+    /*int Version::callbackAll(void *obj, int argc, char **argv, char **azColName)
     {
         std::vector<Version*>* lst = (std::vector<Version*>*)obj;
         Version* p = new Version();
@@ -193,7 +206,7 @@ namespace software
         p->setNumbers(std::atoi(argv[1]),std::atoi(argv[2]),std::atoi(argv[3]));
         lst->push_back(p);
         return 0;
-    }
+    }*/
     int Version::callbackByArtifact(void *obj, int argc, char **argv, char **azColName)
     {
         Version* p = (Version*)obj;	
@@ -251,7 +264,9 @@ namespace software
             fprintf(stderr, "SQL error(%i): %s\n",rc, zErrMsg);
             sqlite3_free(zErrMsg);
             return false;			
-        }			
+        }
+
+		return false;
     }
     void* Conector::getServerConnector()
     {

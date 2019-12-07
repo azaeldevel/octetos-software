@@ -23,15 +23,16 @@ namespace software
 	private:
         int id;        
         static int callbackByArtifact(void *data, int argc, char **argv, char **azColName);
-        static int callbackAll(void *data, int argc, char **argv, char **azColName);
+        //static int callbackAll(void *data, int argc, char **argv, char **azColName);
 			
     public:
         bool selectByArtifact(Conector& conect, int artifact);
-        static bool selectAll(Conector& conect, std::vector<Version*>& vec);
+        //static bool selectAll(Conector& conect, std::vector<Version*>& vec);
 		bool insert(Conector& conn,const std::string& strver);
 		int getID()const;
 		Version();
 		Version(int);
+		Version& operator=(int id);
     }; 
 
 	class Package
@@ -42,12 +43,12 @@ namespace software
 		std::string note;
 		Version version;
       
-        static int callbackByPackage(void *data, int argc, char **argv, char **azColName);
-        static int callbackAll(void *data, int argc, char **argv, char **azColName);
+        static int callbackByFullLine(void *data, int argc, char **argv, char **azColName);
+        //static int callbackAll(void *data, int argc, char **argv, char **azColName);
 		
     public:
         bool selectByName(Conector& conect, const std::string name);
-        static bool selectAll(Conector& conect, std::vector<Package*>& vec);
+        //static bool selectAll(Conector& conect, std::vector<Package*>& vec);
 		bool insert(Conector& conn, const std::string& name,const Version& version);
 		int getID()const;
     };
@@ -58,14 +59,13 @@ namespace software
 	private:
         int id;  
 		std::string name;
-		Package* package;
-      
+		Package* package;      
         static int callbackByArtifact(void *data, int argc, char **argv, char **azColName);
-        static int callbackAll(void *data, int argc, char **argv, char **azColName);
+        //static int callbackAll(void *data, int argc, char **argv, char **azColName);
 		
     public:
         bool selectByArtifact(Conector& conect, const std::string& path);
-        static bool selectAll(Conector& conect, std::vector<Artifact*>& vec);
+        //static bool selectAll(Conector& conect, std::vector<Artifact*>& vec);
 		bool insert(Conector& conn, const Version& version,const std::string& path, Package* package);
 		int getID()const;
     };   
