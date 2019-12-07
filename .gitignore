@@ -18,4 +18,5 @@ ltmain.sh
 missing
 octetos-software.anjuta
 po/Makefile.in.in
+src/db-test
 

@@ -21,20 +21,6 @@ int main(int argc, char *argv[])
 	iSecret = rand() % 10000 + 1;
 
 	
-	octetos::software::Package pack;
-	std::string packname = "packtest" ;
-	packname += std::to_string(iSecret);
-	if(pack.insert(conn,packname))
-	{
-		pack.selectByPackage(conn,packname);
-		std::cout << "Pack inserted.\n";
-	}
-	else
-	{
-		std::cout << "Pack not inserted.\n";
-	}
-	
-	
 	octetos::software::Version ver1;
 	std::string ver1str = "1.2.3-alpha" ;
 	if(ver1.insert(conn,ver1str))
@@ -46,6 +32,21 @@ int main(int argc, char *argv[])
 		std::cout << "Version not inserted.\n";
 	}
 	
+	
+	octetos::software::Package pack;
+	std::string packname = "packtest" ;
+	packname += std::to_string(iSecret);
+	if(pack.insert(conn,packname,ver1))
+	{
+		pack.selectByName(conn,packname);
+		std::cout << "Pack inserted.\n";
+	}
+	else
+	{
+		std::cout << "Pack not inserted.\n";
+	}
+	
+		
 	octetos::software::Artifact arti;
 	std::string artiname = "artitest" ;
 	artiname += std::to_string(iSecret);

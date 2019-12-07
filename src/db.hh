@@ -18,23 +18,6 @@ namespace software
         void* getServerConnector();
     };
 
-	class Package
-    {
-	private:
-        int id;  
-		std::string name;
-		std::string note;
-      
-        static int callbackByPackage(void *data, int argc, char **argv, char **azColName);
-        static int callbackAll(void *data, int argc, char **argv, char **azColName);
-		
-    public:
-        bool selectByPackage(Conector& conect, const std::string name);
-        static bool selectAll(Conector& conect, std::vector<Package*>& vec);
-		bool insert(Conector& conn, const std::string& name);
-		int getID()const;
-    };
-
     class Version : public octetos::core::Version
     {
 	private:
@@ -47,7 +30,28 @@ namespace software
         static bool selectAll(Conector& conect, std::vector<Version*>& vec);
 		bool insert(Conector& conn,const std::string& strver);
 		int getID()const;
+		Version();
+		Version(int);
     }; 
+
+	class Package
+    {
+	private:
+        int id;  
+		std::string name;
+		std::string note;
+		Version version;
+      
+        static int callbackByPackage(void *data, int argc, char **argv, char **azColName);
+        static int callbackAll(void *data, int argc, char **argv, char **azColName);
+		
+    public:
+        bool selectByName(Conector& conect, const std::string name);
+        static bool selectAll(Conector& conect, std::vector<Package*>& vec);
+		bool insert(Conector& conn, const std::string& name,const Version& version);
+		int getID()const;
+    };
+
         
 	class Artifact
     {

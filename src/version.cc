@@ -46,8 +46,8 @@ int CmdVersion::indexAdd(int argc, char *argv[])
 		return EXIT_FAILURE;
     }	
 	std::string strver = argv[2];
-	octetos::software::Version ver;
-	if(!ver.from(strver))
+	octetos::software::Version v;
+	if(!v.from(strver))
 	{
 		return EXIT_FAILURE;
 	}
@@ -60,13 +60,19 @@ int CmdVersion::indexAdd(int argc, char *argv[])
 
 	octetos::software::Conector conn(dirdb);
 
-	octetos::software::Package pack;
-	if(!pack.selectByPackage(conn,pakagename))
+	octetos::software::Version ver;
+	if(!ver.insert(conn,strver))
 	{
-		octetos::software::Package pack;
-		if(pack.insert(conn,pakagename))
+		std::cerr << "Version not inserted.\n";
+		return EXIT_FAILURE;
+	}
+	
+	octetos::software::Package pack;
+	if(!pack.selectByName(conn,pakagename))
+	{
+		if(pack.insert(conn,pakagename,ver))
 		{
-			pack.selectByPackage(conn,pakagename);
+			pack.selectByName(conn,pakagename);
 			//std::cout << "Pack inserted.\n";
 		}
 		else
@@ -76,10 +82,6 @@ int CmdVersion::indexAdd(int argc, char *argv[])
 	}
 
 	octetos::software::Artifact artifact;
-	//std::string artiname = "artitest" ;
-	//artiname += std::to_string(iSecret);
-	//std::string strpath = "pathtest" ;
-	//strpath += "-" + std::to_string(iSecret);
 	for(std::string strart : arts)
 	{
 		if(artifact.selectByArtifact(conn,strart))
@@ -151,7 +153,7 @@ CmdVersion::CmdVersion()
     packCommand = false;
 
 	octetos::core::Artifact artifact = getPackageInfo();
-	if(artifact.version.getStage() > octetos_version_Stage::snapshot)
+	if(artifact.version.getStage() <= octetos_version_Stage::snapshot)
 	{
 		dirdb = "/etc/octetos/version/db";
 	}

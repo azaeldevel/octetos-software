@@ -21,6 +21,7 @@ namespace software
 		//std::cout << "SQL : " << sql << "\n";
 		if(conn.query(sql,callbackByArtifact,this))
         {
+			id = sqlite3_last_insert_rowid((sqlite3*)conn.getServerConnector());
             return true;
         }
 			
@@ -58,7 +59,6 @@ namespace software
 		//std::cout << "SQL : " << sql << "\n";
         if(connect.query(sql,callbackByArtifact,this))
         {
-			id = sqlite3_last_insert_rowid((sqlite3*)connect.getServerConnector());
             return true;
         }
 			
@@ -77,22 +77,23 @@ namespace software
 	{
 		return id;
 	}
-	bool Package::insert(Conector& conn, const std::string& name)
+	bool Package::insert(Conector& conn, const std::string& name,const Version& version)
 	{
-		std::string sql = "INSERT INTO package(name) values (";
-		sql += "'" + name + "')";
+		std::string sql = "INSERT INTO package(name,version) values (";
+		sql += "'" + name + "','" + std::to_string(version.getID()) + "')";
 		//std::cout << "SQL : " << sql << "\n";
 		if(conn.query(sql,callbackByPackage,this))
         {
 			id = sqlite3_last_insert_rowid((sqlite3*)conn.getServerConnector());
             return true;
         }
-			
+		
+		id = -1;
         return false;
 	}	
 	bool Package::selectAll(Conector& conect, std::vector<Package*>& vec)
     {
-        std::string sql = "SELECT id,major,minor,patch,stage,build FROM version";
+        std::string sql = "SELECT id,name,version FROM version";
         if(conect.query(sql,callbackAll,&vec))
         {
             return true;
@@ -105,7 +106,9 @@ namespace software
         std::vector<Package*>* lst = (std::vector<Package*>*)obj;
         Package* p = new Package();
         p->id = std::atoi(argv[0]);
-        p->name = std::atoi(argv[1]);
+        p->name = argv[1];
+		p->version = std::atoi(argv[2]);
+		
         lst->push_back(p);
         return 0;
     }
@@ -113,17 +116,17 @@ namespace software
     {
         Package* p = (Package*)obj;	
         p->id = std::atoi(argv[0]);
-        //p->setNumbers(std::atoi(argv[1]),std::atoi(argv[2]),std::atoi(argv[3]));	
+        p->name = argv[1];
+		p->version = std::atoi(argv[2]);	
         
         return 0;
     }
-    bool Package::selectByPackage(Conector& connect, const std::string name)
+    bool Package::selectByName(Conector& connect, const std::string name)
     {
-        std::string sql = "SELECT id,name FROM package WHERE name = '";
-        sql = sql + name + "'";
+        std::string sql = "SELECT id,name,version FROM package WHERE name = '";
+        sql = sql + name + "' ORDER BY id DESC LIMIT 1 ";
         if(connect.query(sql,callbackByPackage,this))
         {
-			id = sqlite3_last_insert_rowid((sqlite3*)connect.getServerConnector());
             return true;
         }
 			
@@ -135,8 +138,14 @@ namespace software
 
 	
 
-
-	
+	Version::Version()
+	{
+		id = -1;
+	}
+	Version::Version(int id)
+	{
+		this->id = id;
+	}
 	int Version::getID()const
 	{
 		return id;
@@ -152,13 +161,14 @@ namespace software
 		sql += "'" + std::to_string(getMajor()) + "','" + std::to_string(getMinor()) + "','" + std::to_string(getPatch()) + "','";
 		sql += "unknown" ;
 		sql += "','" + strver + "')";
-		std::cout << "SQL : " << sql << "\n";
+		//std::cout << "SQL : " << sql << "\n";
 		if(conn.query(sql,callbackByArtifact,this))
         {
 			id = sqlite3_last_insert_rowid((sqlite3*)conn.getServerConnector());
             return true;
         }
-			
+		
+		id = -1;
         return false;
 	}
     /**
@@ -220,9 +230,13 @@ namespace software
     {
         char *zErrMsg = 0;
         int rc = sqlite3_exec((sqlite3*)serverConnector, str.c_str(), callback, obj, &zErrMsg);
-        if( rc == SQLITE_NOTADB ) 
+        if( rc == SQLITE_OK )
+		{
+			return true;
+		}
+		else if( rc == SQLITE_NOTADB ) 
         {
-            fprintf(stderr, "SQL error(%i): La base de datso tiene mal formato: %s\n",rc, zErrMsg);
+            fprintf(stderr, "SQL error(%i): La base de datos tiene mal formato: %s\n",rc, zErrMsg);
             sqlite3_free(zErrMsg);
             return false;				
         }
@@ -237,9 +251,7 @@ namespace software
             fprintf(stderr, "SQL error(%i): %s\n",rc, zErrMsg);
             sqlite3_free(zErrMsg);
             return false;			
-        }
-		
-        return true;			
+        }			
     }
     void* Conector::getServerConnector()
     {
