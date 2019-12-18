@@ -53,7 +53,7 @@ namespace software
 		packinfo.licence.type = Licence::Type::GPL;		
 		packinfo.licence.name_public = packinfo.name;
 		packinfo.licence.owner = "Azael Reyes";
-		packinfo.licence.year = 2018;
+		packinfo.licence.year = 2019;
         packinfo.licence.contact = "azael.devel@gmail.com";
 		#elif defined ENABLED_AUTOTOOLS
 		packinfo.name = PACKAGE_NAME;
@@ -65,7 +65,7 @@ namespace software
 		packinfo.licence.type = octetos::core::Licence::Type::GPL;		
 		packinfo.licence.name_public = packinfo.name;
 		packinfo.licence.owner = "Azael Reyes";
-		packinfo.licence.year = 2018;
+		packinfo.licence.year = 2019;
         packinfo.licence.contact = "azael.devel@gmail.com";
 		#endif
 		return packinfo;	

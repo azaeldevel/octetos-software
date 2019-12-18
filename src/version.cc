@@ -8,22 +8,13 @@ namespace octetos
 namespace software
 {
 int CmdVersion::versioncmd(int argc, char *argv[])
-{
-    int i = 1;
-    
-    strOption = argv[i];   
+{   
     octetos::core::Artifact packinfo = octetos::software::getPackageInfo();
-    if(strOption.compare("--version") == 0)
-    {
-        octetos::core::Artifact packinfo = octetos::software::getPackageInfo();
-        std::string str = "v";
-		str += packinfo.version.toString() + " " + packinfo.name + "\n" ;
-		str += packinfo.licence.getBrief() + "\n" + packinfo.brief + "\tContac:" + packinfo.licence.contact + "\n";        
-        std::cout << str ;        
-        return EXIT_SUCCESS;
-    }
-	
-	return EXIT_FAILURE;
+    std::string str = "v";
+	str += packinfo.version.toString() + " " + packinfo.name + "\n" ;
+	str += packinfo.licence.getBrief() + "\n" + packinfo.brief + "\tContac:" + packinfo.licence.contact + "\n";        
+    std::cout << str ;        
+   	return EXIT_SUCCESS;
 }
 
 int CmdVersion::help(int argc, char *argv[])
@@ -402,13 +393,16 @@ int CmdVersion::base(int argc, char *argv[])
 int main(int argc, char *argv[])
 {	
     //int i = 1;    
-    std::string strOption = argv[1]; 
+	//std::cout << "argc = " << argc << "\n";
+	std::string strOption = "";
 	octetos::software::CmdVersion cmd;	
-	if(strOption.compare("--version") == 0)
+	if(argc == 1)
 	{
 		return cmd.versioncmd(argc,argv);
 	}
-	else if(strOption.compare("--help") == 0)
+	
+    strOption = argv[1]; 
+	if(strOption.compare("--help") == 0)
 	{
 		return cmd.help(argc,argv);
 	}
