@@ -401,8 +401,12 @@ int main(int argc, char *argv[])
 		return cmd.versioncmd(argc,argv);
 	}
 	
-    strOption = argv[1]; 
-	if(strOption.compare("--help") == 0)
+	strOption = argv[1];
+	if(strOption.compare("--version") == 0)
+	{
+		return cmd.versioncmd(argc,argv);
+	}
+	else if(strOption.compare("--help") == 0)
 	{
 		return cmd.help(argc,argv);
 	}
