@@ -69,9 +69,14 @@ int main(int argc, char *argv[])
 	}*/
 
 	octetos::software::Package packdel;
-	if(packdel.selectByName (conn,"packtest6443"))
+	if(packdel.selectByName (conn,"packtest6538"))
 	{
+		int id = packdel.getID();
 		std::cout << "Package id = " << packdel.getID() << ".\n";
+		if(packdel.remove(conn))
+		{
+			std::cout << "Elimiando  = " << id << ".\n";
+		}		
 	}
 	else
 	{

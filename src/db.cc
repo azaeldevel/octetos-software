@@ -11,6 +11,18 @@ namespace octetos
 namespace software
 {
 	
+    bool Artifact::selectByPackage(Conector& connect, const Package& package, std::vector<Artifact*>* artifacts)
+    {
+        std::string sql = "SELECT id FROM artifact WHERE package = '" ;
+        sql += std::to_string(package.getID()) + "'";
+		std::cout << "SQL : " << sql << "\n";
+        if(connect.query(sql,callbackMultiline,artifacts))
+        {
+            return true;
+        }
+			
+        return false;
+    }
     int Artifact::callbackMultiline(void *obj, int argc, char **argv, char **azColName)
     {
 		std::vector<Artifact*>* ls = (std::vector<Artifact*>*)obj;
@@ -22,18 +34,6 @@ namespace software
 		}
         return 0;
     }
-	bool Artifact::getArtifacts(Conector& connect, std::vector<Artifact*>* artifacts)
-	{
-        std::string sql = "SELECT id FROM artifact WHERE fullpath = '";
-        //sql = sql + path + "'";
-		//std::cout << "SQL : " << sql << "\n";
-        if(connect.query(sql,callbackMultiline,artifacts))
-        {
-            return true;
-        }
-			
-        return false;		
-	}
 	Artifact::Artifact()
 	{
 	}
@@ -125,15 +125,28 @@ namespace software
 
 	
 
+	bool Package::getArtifacts(Conector& conect, std::vector<Artifact*>* artifacts)
+	{
+		Artifact::selectByPackage(conect,*this,artifacts);
 
+		return true;
+	}
     bool Package::remove(Conector& conect)
 	{
-        std::string sql = "DELETE FROM artifact WHERE id = ";
+        std::string sql = "DELETE FROM package WHERE id = ";
         sql = sql + std::to_string(id);
         if(conect.query(sql,NULL,this))
         {
+			version.remove(conect);
+			std::vector<octetos::software::Artifact*> arts;
+			if(!getArtifacts(conect,&arts)) return false;
+			for(octetos::software::Artifact* part : arts)
+			{
+				if(!part->remove(conect)) return false;
+			}
             return true;
         }
+		
 		
         return false;
 	}
@@ -264,6 +277,7 @@ namespace software
         sql = sql + std::to_string(id);
         if(conect.query(sql,NULL,this))
         {
+			id = -1;
             return true;
         }
 		

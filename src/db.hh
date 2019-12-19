@@ -62,9 +62,10 @@ namespace software
 		int getID()const;
 		bool deleteByName(Conector& conn, const std::string& name);
         bool remove(Conector& conect);
+		bool getArtifacts(Conector& conect, std::vector<Artifact*>* artifacts);
     };
-
-        
+	
+	
 	class Artifact
     {
 	private:
@@ -87,7 +88,7 @@ namespace software
         bool remove(Conector& conect);
 		Artifact(int id);
 		Artifact();
-		bool getArtifacts(Conector& conect, std::vector<Artifact*>* artifacts);
+		static bool selectByPackage(Conector& conect, const Package&,std::vector<Artifact*>*);
     };   
     
 }
