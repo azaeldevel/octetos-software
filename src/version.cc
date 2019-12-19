@@ -78,7 +78,7 @@ int CmdVersion::indexAdd(int argc, char *argv[])
 	{
 		if(artifact.insert(conn,ver,strart,&pack))
 		{
-			artifact.selectByArtifact(conn,strart);
+			artifact.selectByFullPath(conn,strart);
 		}
 		else
 		{

@@ -38,8 +38,8 @@ int main(int argc, char *argv[])
 	packname += std::to_string(iSecret);
 	if(pack.insert(conn,packname,ver1))
 	{
-		pack.selectByName(conn,packname);
-		std::cout << "Pack inserted.\n";
+		//pack.selectByName(conn,packname);
+		std::cout << "Pack inserted " << pack.getID() << ".\n";
 	}
 	else
 	{
@@ -54,7 +54,7 @@ int main(int argc, char *argv[])
 	strpath += "-" + std::to_string(iSecret);
 	if(arti.insert(conn,ver1,strpath,&pack))
 	{
-		arti.selectByArtifact(conn,strpath);
+		//arti.selectByFullPath(conn,strpath);
 		std::cout << "Artefacto inserted.\n";
 	}
 	else
@@ -62,6 +62,21 @@ int main(int argc, char *argv[])
 		std::cout << "Artefacto not inserted.\n";
 	}
 	
+	/*octetos::software::Artifact artidel(2);
+	if(artidel.remove(conn))
+	{
+		std::cout << "Artefacto delete.\n";
+	}*/
+
+	octetos::software::Package packdel;
+	if(packdel.selectByName (conn,"packtest6443"))
+	{
+		std::cout << "Package id = " << packdel.getID() << ".\n";
+	}
+	else
+	{
+		std::cout << "Not selected package.\n";
+	}
 	
 	
     return 0;

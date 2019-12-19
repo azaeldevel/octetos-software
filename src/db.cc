@@ -10,6 +10,61 @@ namespace octetos
 {
 namespace software
 {
+	
+    int Artifact::callbackMultiline(void *obj, int argc, char **argv, char **azColName)
+    {
+		std::vector<Artifact*>* ls = (std::vector<Artifact*>*)obj;
+		for (int i = 0; i < argc; i++) 
+		{			
+		    Artifact* p = new Artifact(std::atoi(argv[0]));	
+
+			ls->push_back(p);
+		}
+        return 0;
+    }
+	bool Artifact::getArtifacts(Conector& connect, std::vector<Artifact*>* artifacts)
+	{
+        std::string sql = "SELECT id FROM artifact WHERE fullpath = '";
+        //sql = sql + path + "'";
+		//std::cout << "SQL : " << sql << "\n";
+        if(connect.query(sql,callbackMultiline,artifacts))
+        {
+            return true;
+        }
+			
+        return false;		
+	}
+	Artifact::Artifact()
+	{
+	}
+	Artifact::Artifact(int id)
+	{
+		this->id = id;
+	}
+    bool Artifact::remove(Conector& conect)
+	{
+        std::string sql = "DELETE FROM artifact WHERE id = ";
+        sql = sql + std::to_string(id);
+        if(conect.query(sql,NULL,this))
+        {
+            return true;
+        }
+		
+        return false;
+	}
+	bool Artifact::deleteByPackage(Conector& conn, const Package& package)
+	{
+		std::string sql = "DELETE from artifact WHERE package = " + std::to_string(package.getID());
+		//std::cout << "SQL : " << sql << "\n";
+		if(conn.query(sql,NULL,this))
+        {
+			id = -1;
+            return true;
+        }
+		
+		id = -1;
+        return false;
+	}
 	int Artifact::getID()const
 	{
 		return id;
@@ -52,7 +107,7 @@ namespace software
         
         return 0;
     }
-    bool Artifact::selectByArtifact(Conector& connect, const std::string& path)
+    bool Artifact::selectByFullPath(Conector& connect, const std::string& path)
     {
         std::string sql = "SELECT id FROM artifact WHERE fullpath = '";
         sql = sql + path + "'";
@@ -71,8 +126,30 @@ namespace software
 	
 
 
-
-	
+    bool Package::remove(Conector& conect)
+	{
+        std::string sql = "DELETE FROM artifact WHERE id = ";
+        sql = sql + std::to_string(id);
+        if(conect.query(sql,NULL,this))
+        {
+            return true;
+        }
+		
+        return false;
+	}
+	bool Package::deleteByName(Conector& conn, const std::string& name)
+	{
+		std::string sql = "DELETE from package WHERE name = " + name;
+		//std::cout << "SQL : " << sql << "\n";
+		if(conn.query(sql,NULL,this))
+        {
+			id = -1;
+            return true;
+        }
+		
+		id = -1;
+        return false;
+	}
 	int Package::getID()const
 	{
 		return id;
@@ -81,7 +158,7 @@ namespace software
 	{
 		std::string sql = "INSERT INTO package(name,version) values (";
 		sql += "'" + name + "','" + std::to_string(version.getID()) + "')";
-		std::cout << "SQL : " << sql << "\n";
+		//std::cout << "SQL : " << sql << "\n";
 		if(conn.query(sql,callbackByFullLine,this))
         {
 			id = sqlite3_last_insert_rowid((sqlite3*)conn.getServerConnector());
@@ -115,38 +192,83 @@ namespace software
     }*/
     int Package::callbackByFullLine(void *obj, int argc, char **argv, char **azColName)
     {
-        Package* p = (Package*)obj;
-		if(argc == 1)
+		//std::cout << "argc " << argc << "\n";
+		Package* p = (Package*)obj;
+		if(argc > 0)
 		{
-		    p->id = std::atoi(argv[0]);
-		    p->name = argv[1];
+			//std::cout << "step : " << 1 << "\n";
+			p->id = std::atoi(argv[0]);
+			//std::cout << "step : " << 2 << "\n";
+			p->name = argv[1];
+			//std::cout << "step : " << 3 << "\n";
 			p->version = std::atoi(argv[2]);
-			p->note = argv[3];	
+			//std::cout << "step : " << 4 << "\n";
+			p->note = (argv[3] == NULL? "" : argv[3]);
+			//std::cout << "step : " << 5 << "\n";
 		}
 		else
 		{
 			p->id = -1;
 		}
 		
+		//std::cout << "step : " << 6 << "\n";
         return 0;
     }
-    bool Package::selectByName(Conector& connect, const std::string name)
+    bool Package::selectByName(Conector& connect, const std::string& name)
     {
         std::string sql = "SELECT id,name,version,note FROM package WHERE name = '";
         sql = sql + name + "' ORDER BY id DESC LIMIT 1 ";
+		//std::cout << "SQL : " << sql << "\n";
         if(connect.query(sql,callbackByFullLine,this))
         {
+			//std::cout << "id : " << id << "\n";
 			if(id == -1) return false;
+			
+			version.download(connect);
             return true;
         }
-			
+		
         return false;
     }
 
 
 
 
+
+
 	
+	
+    int Version::callbackFull(void *obj, int argc, char **argv, char **azColName)
+    {
+        Version* p = (Version*)obj;	
+        p->id = std::atoi(argv[0]);
+        //p->setNumbers(std::atoi(argv[1]),std::atoi(argv[2]),std::atoi(argv[3]));	
+        p->from(argv[4]);
+		
+        return 0;
+    }
+    bool Version::download(Conector& connect)
+    {
+        std::string sql = "SELECT id,major,minor,patch,stage,build,string FROM version WHERE id = '";
+        sql = sql + std::to_string(id) + "'";
+        if(connect.query(sql,callbackByArtifact,this))
+        {
+            return true;
+        }
+		
+        return false;
+    }
+    bool Version::remove(Conector& conect)
+	{
+        std::string sql = "DELETE FROM version WHERE id = ";
+        sql = sql + std::to_string(id);
+        if(conect.query(sql,NULL,this))
+        {
+            return true;
+        }
+		
+        return false;
+	}
 	Version& Version::operator=(int id)
 	{
 		this->id = id;
