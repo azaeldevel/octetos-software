@@ -62,14 +62,16 @@ int main(int argc, char *argv[])
 		std::cout << "Artefacto not inserted.\n";
 	}
 	
-	/*octetos::software::Artifact artidel(2);
+	/*
+	octetos::software::Artifact artidel(2);
 	if(artidel.remove(conn))
 	{
 		std::cout << "Artefacto delete.\n";
-	}*/
+	}
+	*/
 
 	octetos::software::Package packdel;
-	if(packdel.selectByName (conn,"packtest6538"))
+	if(packdel.selectByName (conn,"packtest5625"))
 	{
 		int id = packdel.getID();
 		std::cout << "Package id = " << packdel.getID() << ".\n";

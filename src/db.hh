@@ -22,6 +22,7 @@ namespace software
         ~Conector();
         bool query(const std::string&,int (*callback)(void*,int,char**,char**),void* obj);
         void* getServerConnector();
+		void close();
     };
 
     class Version : public octetos::core::Version
@@ -50,7 +51,7 @@ namespace software
         int id;  
 		std::string name;
 		std::string note;
-		Version version;
+		Version* version;
       
         static int callbackByFullLine(void *data, int argc, char **argv, char **azColName);
         //static int callbackAll(void *data, int argc, char **argv, char **azColName);
@@ -63,6 +64,7 @@ namespace software
 		bool deleteByName(Conector& conn, const std::string& name);
         bool remove(Conector& conect);
 		bool getArtifacts(Conector& conect, std::vector<Artifact*>* artifacts);
+		const Version& getVersion()const;
     };
 	
 	

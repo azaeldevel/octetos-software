@@ -7,13 +7,61 @@ namespace octetos
 {
 namespace software
 {
+
+
+int CmdVersion::indexDelete(int argc, char *argv[])
+{
+    std::string pakagename(argv[1]);
+    if(pakagename.empty())
+    {
+		//std::cout << "Pkg: " << pakagename << "\n";
+    	//return indexAdd(argc-1,argv+1); 
+		return EXIT_FAILURE;
+    }	
+	std::string strver = argv[2];
+	octetos::software::Version v;
+	if(!v.from(strver))
+	{
+		return EXIT_FAILURE;
+	}
+
+	octetos::software::Conector conn(dirdb);
+
+	octetos::software::Package packdel;
+	if(packdel.selectByName (conn,pakagename))
+	{
+		//int id = packdel.getID();
+		//std::cout << "Package id = " << packdel.getID() << ".\n";
+		if(packdel.getVersion() == 
+		   v)
+		{
+			if(packdel.remove(conn))
+			{
+				std::cout << "Se elímino '" << pakagename << "'.\n";
+			}	
+		}
+		else
+		{
+			std::cout << "No hay coincidencia del paquete '" << pakagename << "'con la version especificada.\n";
+		}
+	}
+	else
+	{
+		conn.close();
+		return EXIT_FAILURE;
+	}
+	
+	conn.close();
+	return EXIT_SUCCESS;
+}
 int CmdVersion::versioncmd(int argc, char *argv[])
 {   
     octetos::core::Artifact packinfo = octetos::software::getPackageInfo();
     std::string str = "v";
 	str += packinfo.version.toString() + " " + packinfo.name + "\n" ;
 	str += packinfo.licence.getBrief() + "\n" + packinfo.brief + "\tContac:" + packinfo.licence.contact + "\n";        
-    std::cout << str ;        
+    std::cout << str ;    
+	
    	return EXIT_SUCCESS;
 }
 
@@ -25,10 +73,17 @@ int CmdVersion::help(int argc, char *argv[])
 	std::cout << "\tversion vertext --get-numbers-only\n";
 	std::cout << "\tversion vertext [--major] [--minor] [--patch]\n";
 	std::cout << "\tversion index add pakagename vertext artifac1 [artifact2 [artifact3 [..]]]\n";
+	std::cout << "\tversion index delete pakagename vertext\n";
     return EXIT_SUCCESS;
 }
 int CmdVersion::indexAdd(int argc, char *argv[])
 {
+	if(argc != 2)
+	{
+		std::cout << "\tversion index delete pakagename vertext\n";
+		return EXIT_FAILURE;
+	}
+	
     std::string pakagename(argv[1]);
     if(pakagename.empty())
     {
@@ -55,6 +110,7 @@ int CmdVersion::indexAdd(int argc, char *argv[])
 	if(!ver.insert(conn,strver))
 	{
 		std::cerr << "Version not inserted.\n";
+		conn.close();
 		return EXIT_FAILURE;
 	}
 	
@@ -69,6 +125,7 @@ int CmdVersion::indexAdd(int argc, char *argv[])
 		else
 		{
 			std::cerr << "Pack not inserted.\n";
+			conn.close();
 			return EXIT_FAILURE;
 		}
 	}
@@ -83,10 +140,12 @@ int CmdVersion::indexAdd(int argc, char *argv[])
 		else
 		{
 			std::cerr << "Artefacto not inserted.\n";
+			conn.close();
 			return EXIT_FAILURE;
 		}
 	}
-	
+
+	conn.close();
     return EXIT_SUCCESS;
 }
 int CmdVersion::index(int argc, char *argv[])
@@ -98,7 +157,15 @@ int CmdVersion::index(int argc, char *argv[])
     if(!addPrefixIndex)
     {
     	return indexAdd(argc-1,argv+1);            
-    } 
+    }
+
+    std::string deletePrefix("delete");
+    int deletePrefixIndex = strOption.compare(0, deletePrefix.size(), deletePrefix);
+    if(!deletePrefixIndex)
+    {
+    	return indexDelete(argc-1,argv+1);            
+    }
+	
 	
     return EXIT_FAILURE;
 }

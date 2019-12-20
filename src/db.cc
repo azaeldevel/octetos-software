@@ -124,7 +124,10 @@ namespace software
 
 
 	
-
+	const Version& Package::getVersion()const
+	{
+		return *version;
+	}
 	bool Package::getArtifacts(Conector& conect, std::vector<Artifact*>* artifacts)
 	{
 		Artifact::selectByPackage(conect,*this,artifacts);
@@ -137,7 +140,7 @@ namespace software
         sql = sql + std::to_string(id);
         if(conect.query(sql,NULL,this))
         {
-			version.remove(conect);
+			version->remove(conect);
 			std::vector<octetos::software::Artifact*> arts;
 			if(!getArtifacts(conect,&arts)) return false;
 			for(octetos::software::Artifact* part : arts)
@@ -214,7 +217,7 @@ namespace software
 			//std::cout << "step : " << 2 << "\n";
 			p->name = argv[1];
 			//std::cout << "step : " << 3 << "\n";
-			p->version = std::atoi(argv[2]);
+			p->version = new Version(std::atoi(argv[2]));
 			//std::cout << "step : " << 4 << "\n";
 			p->note = (argv[3] == NULL? "" : argv[3]);
 			//std::cout << "step : " << 5 << "\n";
@@ -237,7 +240,7 @@ namespace software
 			//std::cout << "id : " << id << "\n";
 			if(id == -1) return false;
 			
-			version.download(connect);
+			version->download(connect);
             return true;
         }
 		
@@ -371,7 +374,10 @@ namespace software
 
 
 
-	
+	void Conector::close()
+	{
+		sqlite3_close((sqlite3*)serverConnector);
+	}
     /**
     ***
     **/
