@@ -20,7 +20,7 @@ int CmdVersion::indexDelete(int argc, char *argv[])
     }	
 	std::string strver = argv[2];
 	octetos::software::Version v;
-	if(!v.from(strver))
+	if(!v.set(strver))
 	{
 		return EXIT_FAILURE;
 	}
@@ -32,8 +32,7 @@ int CmdVersion::indexDelete(int argc, char *argv[])
 	{
 		//int id = packdel.getID();
 		//std::cout << "Package id = " << packdel.getID() << ".\n";
-		if(packdel.getVersion() == 
-		   v)
+		if(packdel.getVersion() == v)
 		{
 			if(packdel.remove(conn))
 			{
@@ -42,7 +41,7 @@ int CmdVersion::indexDelete(int argc, char *argv[])
 		}
 		else
 		{
-			std::cout << "No hay coincidencia del paquete '" << pakagename << "'con la version especificada.\n";
+			std::cout << "No hay coincidencia del paquete '" << pakagename << "' con la version especificada.\n";
 		}
 	}
 	else
@@ -74,6 +73,7 @@ int CmdVersion::help(int argc, char *argv[])
 	std::cout << "\tversion vertext [--major] [--minor] [--patch]\n";
 	std::cout << "\tversion index add pakagename vertext artifac1 [artifact2 [artifact3 [..]]]\n";
 	std::cout << "\tversion index delete pakagename vertext\n";
+	
     return EXIT_SUCCESS;
 }
 int CmdVersion::indexAdd(int argc, char *argv[])
@@ -93,7 +93,7 @@ int CmdVersion::indexAdd(int argc, char *argv[])
     }	
 	std::string strver = argv[2];
 	octetos::software::Version v;
-	if(!v.from(strver))
+	if(!v.set(strver))
 	{
 		return EXIT_FAILURE;
 	}
@@ -220,12 +220,12 @@ int CmdVersion::base(int argc, char *argv[])
     strOption = argv[i];  
     
     //es una operacion con version
-    if(version.from(strOption))
+    if(version.set(strOption))
     {
         for(i = 2; i< argc; i++)
         {
             strOption = argv[i];
-
+			
 			if(strOption.compare("--get-numbers-only") == 0)
 			{
 				std::cout <<  version.toString(octetos::core::Version::Format::ONLY_NUMBERS) << "\n";
@@ -253,7 +253,7 @@ int CmdVersion::base(int argc, char *argv[])
                 std::string strMin = strOption.substr(minimalOptionPrefix.size());
                 //std::cout << "Minimal: " << strMin << "\n";
                 octetos::core::Version minversion;
-                if(minversion.from(strMin))
+                if(minversion.set(strMin))
                 {                
                     if(minversion.getMajor() < 0 or minversion.getMinor() < 0 or minversion.getPatch() < 0)
                     {
@@ -292,7 +292,7 @@ int CmdVersion::base(int argc, char *argv[])
                 std::string strMax = strOption.substr(maximalOptionPrefix.size());
                 //std::cout << "Maximal: " << strMin << "\n";
                 octetos::core::Version maxversion;
-                if(maxversion.from(strMax))
+                if(maxversion.set(strMax))
                 {   
                     if(maxversion.getMajor() < 0 or maxversion.getMinor() < 0 or maxversion.getPatch() < 0)
                     {

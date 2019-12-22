@@ -259,7 +259,7 @@ namespace software
         Version* p = (Version*)obj;	
         p->id = std::atoi(argv[0]);
         //p->setNumbers(std::atoi(argv[1]),std::atoi(argv[2]),std::atoi(argv[3]));	
-        p->from(argv[4]);
+        p->set(argv[4]);
 		
         return 0;
     }
@@ -305,7 +305,7 @@ namespace software
 	}
 	bool Version::insert(Conector& conn,const std::string& strver)
 	{
-		if(!from(strver))
+		if(!set(strver))
 		{
 			std::cout << "Error. " << strver << "\n"  ;
 			return false;
