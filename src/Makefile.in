@@ -88,6 +88,7 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
+target_triplet = @target@
 bin_PROGRAMS = version$(EXEEXT) testing-v0$(EXEEXT)
 subdir = src
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -104,8 +105,8 @@ PROGRAMS = $(bin_PROGRAMS)
 am_testing_v0_OBJECTS = testing_v0-testing-v0.$(OBJEXT) \
 	testing_v0-db.$(OBJEXT)
 testing_v0_OBJECTS = $(am_testing_v0_OBJECTS)
-testing_v0_DEPENDENCIES = /usr/local/lib/liboctetos-core-cc.so \
-	/usr/lib/libsqlite.so
+am__DEPENDENCIES_1 =
+testing_v0_DEPENDENCIES = $(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
 am__v_lt_0 = --silent
@@ -116,8 +117,7 @@ testing_v0_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) \
 am_version_OBJECTS = version-version.$(OBJEXT) \
 	version-software.$(OBJEXT) version-db.$(OBJEXT)
 version_OBJECTS = $(am_version_OBJECTS)
-version_DEPENDENCIES = /usr/local/lib/liboctetos-core-cc.so \
-	/usr/lib/libsqlite.so
+version_DEPENDENCIES = $(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
 version_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CXXLD) $(AM_CXXFLAGS) \
 	$(CXXFLAGS) $(version_LDFLAGS) $(LDFLAGS) -o $@
@@ -188,7 +188,6 @@ ALL_LINGUAS = @ALL_LINGUAS@
 AMTAR = @AMTAR@
 AM_DEFAULT_VERBOSITY = @AM_DEFAULT_VERBOSITY@
 AR = @AR@
-AS = @AS@
 AUTOCONF = @AUTOCONF@
 AUTOHEADER = @AUTOHEADER@
 AUTOMAKE = @AUTOMAKE@
@@ -196,10 +195,15 @@ AWK = @AWK@
 CATALOGS = @CATALOGS@
 CATOBJEXT = @CATOBJEXT@
 CC = @CC@
+CCAS = @CCAS@
+CCASDEPMODE = @CCASDEPMODE@
+CCASFLAGS = @CCASFLAGS@
 CCDEPMODE = @CCDEPMODE@
 CFLAGS = @CFLAGS@
 CPP = @CPP@
 CPPFLAGS = @CPPFLAGS@
+CPPUNIT_CFLAGS = @CPPUNIT_CFLAGS@
+CPPUNIT_LIBS = @CPPUNIT_LIBS@
 CXX = @CXX@
 CXXCPP = @CXXCPP@
 CXXDEPMODE = @CXXDEPMODE@
@@ -257,6 +261,8 @@ NM = @NM@
 NMEDIT = @NMEDIT@
 OBJDUMP = @OBJDUMP@
 OBJEXT = @OBJEXT@
+OCTETOS_CORE_CFLAGS = @OCTETOS_CORE_CFLAGS@
+OCTETOS_CORE_LIBS = @OCTETOS_CORE_LIBS@
 OTOOL = @OTOOL@
 OTOOL64 = @OTOOL64@
 PACKAGE = @PACKAGE@
@@ -267,6 +273,9 @@ PACKAGE_TARNAME = @PACKAGE_TARNAME@
 PACKAGE_URL = @PACKAGE_URL@
 PACKAGE_VERSION = @PACKAGE_VERSION@
 PATH_SEPARATOR = @PATH_SEPARATOR@
+PKG_CONFIG = @PKG_CONFIG@
+PKG_CONFIG_LIBDIR = @PKG_CONFIG_LIBDIR@
+PKG_CONFIG_PATH = @PKG_CONFIG_PATH@
 POFILES = @POFILES@
 POSUB = @POSUB@
 PO_IN_DATADIR_FALSE = @PO_IN_DATADIR_FALSE@
@@ -275,6 +284,8 @@ RANLIB = @RANLIB@
 SED = @SED@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
+SQLITE3_CFLAGS = @SQLITE3_CFLAGS@
+SQLITE3_LIBS = @SQLITE3_LIBS@
 STRIP = @STRIP@
 USE_NLS = @USE_NLS@
 VERSION = @VERSION@
@@ -331,34 +342,54 @@ sbindir = @sbindir@
 sharedstatedir = @sharedstatedir@
 srcdir = @srcdir@
 sysconfdir = @sysconfdir@
+target = @target@
 target_alias = @target_alias@
+target_cpu = @target_cpu@
+target_os = @target_os@
+target_vendor = @target_vendor@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
+AUTOMAKE_OPTIONS = foreign 1.4
 AM_CPPFLAGS = \
 	-DPACKAGE_LOCALE_DIR=\""$(localedir)"\" \
 	-DPACKAGE_SRC_DIR=\""$(srcdir)"\" \
-	-DPACKAGE_DATA_DIR=\""$(pkgdatadir)"\"
+	-DPACKAGE_DATA_DIR=\""$(pkgdatadir)"\" \
+	$(OCTETOS_CORE_CFLAGS) \
+	$(SQLITE3_CFLAGS)
 
 AM_CFLAGS = \
 	 -Wall\
 	 -g
 
+
+#liboctetos_software_la_SOURCES = \
+#	lib.c
+#liboctetos_software_la_LDFLAGS = 
+#liboctetos_software_la_LIBADD = $(OCTETOS_SOFTWARE_LIBS)
+#if PLATFORM_WIN32
+#liboctetos_software_la_LDFLAGS += -no-undefined
+#endif
+#if NATIVE_WIN32
+#liboctetos_software_la_LDFLAGS += -export-dynamic
+#endif
+version_LDFLAGS = $(OCTETOS_CORE_CFLAGS) $(SQLITE3_CFLAGS)
+version_CFLAGS = $(OCTETOS_CORE_CFLAGS) $(SQLITE3_CFLAGS)
+version_CPPFLAGS = $(OCTETOS_CORE_CFLAGS) $(SQLITE3_CFLAGS)
+version_LDADD = $(OCTETOS_CORE_LIBS) $(SQLITE3_LIBS)
 version_SOURCES = \
 	version.cc \
 	software.cc \
 	db.cc
 
-version_LDFLAGS = 
-version_CPPFLAGS = -DENABLED_AUTOTOOLS 
-version_LDADD = /usr/local/lib/liboctetos-core-cc.so /usr/lib/libsqlite.so -lsqlite3
+testing_v0_LDFLAGS = $(OCTETOS_CORE_CFLAGS) $(SQLITE3_CFLAGS)
+testing_v0_CFLAGS = $(OCTETOS_CORE_CFLAGS) $(SQLITE3_CFLAGS)
+testing_v0_CPPFLAGS = $(OCTETOS_CORE_CFLAGS) $(SQLITE3_CFLAGS)
+testing_v0_LDADD = $(OCTETOS_CORE_LIBS) $(SQLITE3_LIBS)
 testing_v0_SOURCES = \
 	testing-v0.cc \
 	db.cc
 
-testing_v0_LDFLAGS = 
-testing_v0_CPPFLAGS = -DENABLED_AUTOTOOLS 
-testing_v0_LDADD = /usr/local/lib/liboctetos-core-cc.so /usr/lib/libsqlite.so -lsqlite3
 all: all-am
 
 .SUFFIXES:
@@ -372,9 +403,9 @@ $(srcdir)/Makefile.in:  $(srcdir)/Makefile.am  $(am__configure_deps)
 	      exit 1;; \
 	  esac; \
 	done; \
-	echo ' cd $(top_srcdir) && $(AUTOMAKE) --gnu src/Makefile'; \
+	echo ' cd $(top_srcdir) && $(AUTOMAKE) --foreign src/Makefile'; \
 	$(am__cd) $(top_srcdir) && \
-	  $(AUTOMAKE) --gnu src/Makefile
+	  $(AUTOMAKE) --foreign src/Makefile
 Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 	@case '$?' in \
 	  *config.status*) \
@@ -767,7 +798,14 @@ uninstall-am: uninstall-binPROGRAMS
 .PRECIOUS: Makefile
 
 
-@NATIVE_WIN32_TRUE@	version_LDFLAGS += -mwindows
+#include_HEADERS = \
+#	octetos_software.h
+
+#pkgconfigdir = $(libdir)/pkgconfig
+#pkgconfig_DATA = octetos_software-0.4.0-alpha.pc
+
+#EXTRA_DIST = \
+#	octetos_software-0.4.0-alpha.pc.in
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

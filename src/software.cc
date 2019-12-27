@@ -13,9 +13,9 @@ namespace octetos
 {
 namespace software
 {
-	octetos::core::Version getPakageVersion()
+	octetos::core::Semver getPakageVersion()
 	{
-		octetos::core::Version v;
+		octetos::core::Semver v;
 		#ifdef ENABLED_CMAKE
 		v.setNumbers(VERSION_MAJOR,VERSION_MINOR,VERSION_PATCH);
 		v.setStage(VERSION_STAGE);

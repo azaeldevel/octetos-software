@@ -228,7 +228,7 @@ int CmdVersion::base(int argc, char *argv[])
 			
 			if(strOption.compare("--get-numbers-only") == 0)
 			{
-				std::cout <<  version.toString(octetos::core::Version::Format::ONLY_NUMBERS) << "\n";
+				std::cout <<  version.toString(octetos::core::Semver::Format::ONLY_NUMBERS) << "\n";
 				return EXIT_SUCCESS;
 			}
             
@@ -252,7 +252,7 @@ int CmdVersion::base(int argc, char *argv[])
                 mininalOption = true;
                 std::string strMin = strOption.substr(minimalOptionPrefix.size());
                 //std::cout << "Minimal: " << strMin << "\n";
-                octetos::core::Version minversion;
+                octetos::core::Semver minversion;
                 if(minversion.set(strMin))
                 {                
                     if(minversion.getMajor() < 0 or minversion.getMinor() < 0 or minversion.getPatch() < 0)
@@ -291,7 +291,7 @@ int CmdVersion::base(int argc, char *argv[])
                 maximalOption = true;
                 std::string strMax = strOption.substr(maximalOptionPrefix.size());
                 //std::cout << "Maximal: " << strMin << "\n";
-                octetos::core::Version maxversion;
+                octetos::core::Semver maxversion;
                 if(maxversion.set(strMax))
                 {   
                     if(maxversion.getMajor() < 0 or maxversion.getMinor() < 0 or maxversion.getPatch() < 0)

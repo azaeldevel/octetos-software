@@ -1,16 +1,20 @@
 dnl Process this file with autoconf to produce a configure script.
 dnl Created by Anjuta application wizard.
 
-AC_INIT(octetos-software, 0.3.0-alpha)
-
+AC_INIT(octetos_software, 0.4.0-alpha)
+AC_CANONICAL_SYSTEM
 AC_CONFIG_HEADERS([config.h])
-
-AM_INIT_AUTOMAKE([1.11])
-
+AM_INIT_AUTOMAKE
 AM_SILENT_RULES([yes])
 
+AM_PROG_AS
+AC_LANG_CPLUSPLUS
+AC_PROG_CC
+AC_PROG_CPP
 AC_PROG_CXX
-
+AC_PROG_LN_S
+AC_PROG_MAKE_SET
+AC_PROG_LIBTOOL
 
 
 
@@ -51,22 +55,13 @@ AM_CONDITIONAL(NATIVE_WIN32, test x"$native_win32" = "xyes")
 
 LT_INIT([win32-dll])
 
-CFLAGS_backup="${CFLAGS}"
-CPPFLAGS_backup="${CPPFLAGS}"
-LDFLAGS_backup="${LDFLAGS}"
-CFLAGS="-I/usr/locla/include/ ${CFLAGS}"
-CPPFLAGS="-I/usr/locla/include/ ${CPPFLAGS}"
-LDFLAGS="-L/usr/locla/lib/ ${LDFLAGS}"
-#AC_LANG([C++])
-#AC_CHECK_HEADERS([octetos/core/common.hh])
-#AC_CHECK_LIB([liboctetos-core-cc.la],[octetos::core::getPackageInfo])
-#AC_SEARCH_LIBS([octetos::core::getPackageInfo], [octetos-core-cc], [], [AC_MSG_ERROR([unable to find library octetos-core-cc])])
-#PKG_CHECK_MODULES([OCTETOS_CORE_CC], [octetos-core-cc])
-#AM_CONDITIONAL([OCTETOS_CORE_CC],  [test "$have_liboctetos_core_cc" = "yes"])
+PKG_CHECK_MODULES(SQLITE3, [sqlite3])
+PKG_CHECK_MODULES(CPPUNIT, [cppunit])
+PKG_CHECK_MODULES(OCTETOS_CORE, octetos-core)
+
 
 
 AC_OUTPUT([
 Makefile
 src/Makefile
-po/Makefile.in
-])
+po/Makefile.in])

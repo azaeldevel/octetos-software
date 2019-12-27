@@ -15,7 +15,7 @@ namespace software
 	/**
 	 * \brief retorna la version actual de componente
 	 **/
-	octetos::core::Version getPakageVersion();
+	octetos::core::Semver getPakageVersion();
 	std::string getPakageName();
 	
 	/**

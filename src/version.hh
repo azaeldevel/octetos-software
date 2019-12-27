@@ -16,7 +16,7 @@ class CmdVersion
 private:
     std::string dirdb;    
     std::string strOption;
-    octetos::core::Version version;
+    octetos::core::Semver version;
     bool mininalOption;
     bool mininalOptionPass;
     bool mininalOptionEcho;

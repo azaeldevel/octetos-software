@@ -25,7 +25,7 @@ namespace software
 		void close();
     };
 
-    class Version : public octetos::core::Version
+    class Version : public octetos::core::Semver
     {
 	private:
         int id;        
