@@ -162,7 +162,7 @@ int CmdVersion::index(int argc, char *argv[])
     std::string deletePrefix("delete");
     int deletePrefixIndex = strOption.compare(0, deletePrefix.size(), deletePrefix);
     if(!deletePrefixIndex)
-    {
+    {//version index delete packtest2386 1.2.3-alpha
     	return indexDelete(argc-1,argv+1);            
     }
 	
@@ -228,21 +228,24 @@ int CmdVersion::base(int argc, char *argv[])
 			
 			if(strOption.compare("--get-numbers-only") == 0)
 			{
-				std::cout <<  version.toString(octetos::core::Semver::Format::ONLY_NUMBERS) << "\n";
+				std::cout <<  version.toString(octetos::core::semver::FormatString::OnlyNumber) << "\n";
 				return EXIT_SUCCESS;
 			}
             
             if(strOption.compare("--major") == 0 or  strOption.compare("-M")==0)
             {
                 std::cout <<  version.getMajor() << "\n";
+				return EXIT_SUCCESS;
             }
             if(strOption.compare("--minor") == 0 or  strOption.compare("-m")==0)
             {
                 std::cout <<  version.getMinor() << "\n";
+				return EXIT_SUCCESS;
             }
             if(strOption.compare("--patch") == 0 or  strOption.compare("-p")==0)
             {
                 std::cout <<  version.getPatch() << "\n";
+				return EXIT_SUCCESS;
             }
             
             std::string minimalOptionPrefix("--minimal=");
