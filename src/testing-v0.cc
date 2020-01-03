@@ -4,10 +4,21 @@
 #include <iostream>
 
 #include "db.hh"
+#include "software.hh"
 
 
 int main(int argc, char *argv[])
 {
+    
+	octetos::core::Artifact packinfo = octetos::software::getPackageInfo();
+	octetos::core::Semver& ver = packinfo.version;
+	int majorDevelop = 0;
+	if(majorDevelop != ver.getMajor())
+	{
+		std::cerr << "Este conjunto de pruebas estan Deseñado para la version mayor '" << majorDevelop << "'\n";
+		return EXIT_FAILURE;
+	}
+	
     octetos::software::Conector conn("/home/azael/develop/octetos-software/src/db-test");
 	//octetos::software::Version ver;
 	//ver.selectByArtifact(conn,1);

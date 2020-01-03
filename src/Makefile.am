@@ -14,8 +14,8 @@ AM_CFLAGS =\
 #lib_LTLIBRARIES = liboctetos-software.la
 
 
-bin_PROGRAMS = version testing-v0
-
+bin_PROGRAMS = version 
+noinst_PROGRAMS = testing-v0
 
 #liboctetos_software_la_SOURCES = \
 #	lib.c
@@ -46,6 +46,7 @@ testing_v0_CPPFLAGS = $(OCTETOS_CORE_CFLAGS) $(SQLITE3_CFLAGS)
 testing_v0_LDADD = $(OCTETOS_CORE_LIBS) $(SQLITE3_LIBS)
 testing_v0_SOURCES = \
 	testing-v0.cc \
+	software.cc \
 	db.cc
 
 
