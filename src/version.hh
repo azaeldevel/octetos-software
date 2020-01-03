@@ -36,8 +36,8 @@ public:
     int index(int argc, char *argv[]);
 	int indexAdd(int argc, char *argv[]);
 	int indexDelete(int argc, char *argv[]);
-	int help(int argc, char *argv[]);
-	int versioncmd(int argc, char *argv[]);
+	int help();
+	int versioncmd();
     CmdVersion();
 };
     

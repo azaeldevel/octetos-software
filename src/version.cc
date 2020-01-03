@@ -53,7 +53,7 @@ int CmdVersion::indexDelete(int argc, char *argv[])
 	conn.close();
 	return EXIT_SUCCESS;
 }
-int CmdVersion::versioncmd(int argc, char *argv[])
+int CmdVersion::versioncmd()
 {   
     octetos::core::Artifact packinfo = octetos::software::getPackageInfo();
     std::string str = "v";
@@ -64,7 +64,7 @@ int CmdVersion::versioncmd(int argc, char *argv[])
    	return EXIT_SUCCESS;
 }
 
-int CmdVersion::help(int argc, char *argv[])
+int CmdVersion::help()
 {
 	//5.3.2 --get-numbers-only --minimal=3.2 --target='test program'
 	std::cout << "Use :\n";
@@ -205,49 +205,50 @@ CmdVersion::CmdVersion()
     packCommand = false;
 
 	octetos::core::Artifact artifact = getPackageInfo();
-	if(artifact.version.getStage() <= octetos_version_Stage::snapshot)
-	{
-		dirdb = "/etc/octetos/version/db";
-	}
-	else
+	std::string prer = artifact.version.getPrerelease();
+	//std::cout << "prerelsease = " << prer << "\n";
+	if(prer.compare("alpha") == 0)
 	{
     	dirdb = "/home/azael/develop/octetos-software/src/db-test";
 	}
+	else
+	{
+		dirdb = "/etc/octetos/version/db";
+	}
 }
 int CmdVersion::base(int argc, char *argv[])
-{
-    int i = 1;    
-    strOption = argv[i];  
+{   
+    strOption = argv[1];  
     
     //es una operacion con version
     if(version.set(strOption))
     {
-        for(i = 2; i< argc; i++)
+		//std::cout << "base = " << version.toString() << "\n";		
+		
+        for(int i = 2; i < argc; i++)
         {
             strOption = argv[i];
 			
 			if(strOption.compare("--get-numbers-only") == 0)
 			{
 				std::cout <<  version.toString(octetos::core::semver::FormatString::OnlyNumber) << "\n";
-				return EXIT_SUCCESS;
 			}
-            
-            if(strOption.compare("--major") == 0 or  strOption.compare("-M")==0)
-            {
-                std::cout <<  version.getMajor() << "\n";
-				return EXIT_SUCCESS;
-            }
-            if(strOption.compare("--minor") == 0 or  strOption.compare("-m")==0)
-            {
-                std::cout <<  version.getMinor() << "\n";
-				return EXIT_SUCCESS;
-            }
-            if(strOption.compare("--patch") == 0 or  strOption.compare("-p")==0)
-            {
-                std::cout <<  version.getPatch() << "\n";
-				return EXIT_SUCCESS;
-            }
-            
+		    
+		    if(strOption.compare("--major") == 0 or  strOption.compare("-M") == 0)
+		    {
+				std::cout <<  version.getMajor() << "\n";
+		   	}
+			
+		    if(strOption.compare("--minor") == 0 or  strOption.compare("-m") == 0)
+		   	{
+				std::cout <<  version.getMinor() << "\n";
+		   	}
+			
+		  	if(strOption.compare("--patch") == 0 or  strOption.compare("-p") == 0)
+		    {
+		    	std::cout <<  version.getPatch() << "\n";
+		    }
+			
             std::string minimalOptionPrefix("--minimal=");
             int minmalIndex = strOption.compare(0, minimalOptionPrefix.size(), minimalOptionPrefix);
             if(!minmalIndex)
@@ -351,8 +352,6 @@ int CmdVersion::base(int argc, char *argv[])
             {
                 std::cout << "false\n";
             }
-            
-            return EXIT_SUCCESS;
         }
         
         //std::cout << "step 4\n";
@@ -370,8 +369,6 @@ int CmdVersion::base(int argc, char *argv[])
             {
                 std::cout << "false\n";
             }
-            
-            return EXIT_SUCCESS;
         }
         
         if(targetOption)
@@ -387,7 +384,7 @@ int CmdVersion::base(int argc, char *argv[])
                     std::cout << targetOptionStr << " " << version.toString() << " : fail\n";
                 }
             }
-            else 
+            else
             {
                 if(mininalOption)
                 {
@@ -413,44 +410,15 @@ int CmdVersion::base(int argc, char *argv[])
                     }
                 }
             } 
-            
-            return EXIT_SUCCESS;
         }
-        
-        strOption = argv[i]; 
-        std::string packCommandStr("pack");
-        int packCommandStrIndex = strOption.compare(0, packCommandStr.size(), packCommandStr);
-        if(!packCommandStrIndex)
-        {
-            ///std::cout << "str:" << strOption << "\n";
-            //std::cout << "pstr:" << strOption << "\n";
-            packCommand = true;
-            //std::cout << "p0:" << argv << "\n";
-            //std::cout << "pi:" << argv + i << "\n";
-            //std::cout << "argc:" << argc << "\n";
-            //std::cout << "argc-i:" << argc-i << "\n";
-            return pack(argc-i,argv+i);
-        }
-        
-        
-        strOption = argv[i]; 
-        std::string indexCommandStr("index");
-        int indexCommandStrIndex = strOption.compare(0, indexCommandStr.size(), indexCommandStr);
-        if(!indexCommandStrIndex)
-        {
-            //std::cout << "str:" << strOption << "\n";
-            //std::cout << "pstr:" << strOption << "\n";
-            indexCommand = true;
-            //std::cout << "p0:" << argv << "\n";
-            //std::cout << "pi:" << argv + i << "\n";
-            //std::cout << "argc:" << argc << "\n";
-            //std::cout << "argc-i:" << argc-i << "\n";
-            return index(argc-i,argv+i);
-        }
-        
-        return EXIT_SUCCESS;
     }
-    return EXIT_FAILURE;
+    else
+    {
+        std::cerr << "'" << strOption << "' no es una version valida.\n";
+        return EXIT_FAILURE;
+    }
+	
+    return EXIT_SUCCESS;
 }
 
 
@@ -461,31 +429,32 @@ int CmdVersion::base(int argc, char *argv[])
 
 
 int main(int argc, char *argv[])
-{	
-    //int i = 1;    
-	//std::cout << "argc = " << argc << "\n";
-	std::string strOption = "";
+{ 
 	octetos::software::CmdVersion cmd;	
 	if(argc == 1)
 	{
-		return cmd.versioncmd(argc,argv);
+		return cmd.versioncmd();
 	}
 	
-	strOption = argv[1];
+	//std::cout << "argc = " << argc << "\n";
+	//std::cout << "argv[1] = " << argv[1] << "\n";	
+	std::string strOption = argv[1];
 	if(strOption.compare("--version") == 0)
 	{
-		return cmd.versioncmd(argc,argv);
+		return cmd.versioncmd();
 	}
 	else if(strOption.compare("--help") == 0)
 	{
-		return cmd.help(argc,argv);
+		return cmd.help();
 	}
 	else if(strOption.compare("index") == 0)
 	{
 		return cmd.index(argc-1,argv+1);
 	}
 	else
-	{		    
+	{		  
 		return cmd.base(argc,argv);
 	}
+
+	return EXIT_FAILURE;
 }
