@@ -3,7 +3,7 @@
 
 #include <iostream>
 
-#include <octetos/core/common.hh>
+#include <octetos/core/Version.hh>
 
 
 namespace octetos
